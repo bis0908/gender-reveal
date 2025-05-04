@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Switch } from '@/components/ui/switch';
 import { CalendarIcon, ArrowRightIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { BabyInfoForm } from '@/components/reveal-form/baby-info-form';
 import { MultipleBabiesForm } from '@/components/reveal-form/multiple-babies-form';
@@ -103,7 +104,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "PPP")
+                      format(field.value, "yyyy년 MM월 dd일", { locale: ko })
                     ) : (
                       <span>날짜 선택</span>
                     )}
@@ -120,6 +121,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
                     date < new Date()
                   }
                   initialFocus
+                  locale={ko}
                 />
               </PopoverContent>
             </Popover>
