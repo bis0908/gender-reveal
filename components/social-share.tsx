@@ -34,13 +34,28 @@ export function SocialShare({
   url, 
   title, 
   motherName, 
-  fatherName}: SocialShareProps) {
+  fatherName,
+  gender,
+  multipleBabies
+}: SocialShareProps) {
   const [copied, setCopied] = useState(false);
   
   // 공유 텍스트 생성
   const shareText = useCallback(() => {
-    return `${motherName}와(과) ${fatherName}의 Gender Reveal에 초대합니다! 함께 축하해주세요! 🎉`;
-  }, [motherName, fatherName])();
+    if (multipleBabies && multipleBabies.length > 0) {
+      const boysCount = multipleBabies.filter(baby => baby.gender === 'boy').length;
+      const girlsCount = multipleBabies.filter(baby => baby.gender === 'girl').length;
+      
+      const genderInfo = [];
+      if (boysCount > 0) genderInfo.push(`남자아이 ${boysCount}명`);
+      if (girlsCount > 0) genderInfo.push(`여자아이 ${girlsCount}명`);
+      
+      return `${motherName}와(과) ${fatherName}의 Gender Reveal 결과: ${genderInfo.join(', ')}! 함께 축하해주세요! 🎉`;
+    }
+    
+    const genderText = gender === 'boy' ? '남자아이' : '여자아이';
+    return `${motherName}와(과) ${fatherName}의 Gender Reveal 결과: ${genderText}입니다! 함께 축하해주세요! 🎉`;
+  }, [motherName, fatherName, gender, multipleBabies])();
   
   const copyToClipboard = async () => {
     try {
