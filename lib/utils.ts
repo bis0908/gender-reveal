@@ -8,15 +8,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // JWT Secret - In a production environment, this should be an environment variable
-const JWT_SECRET = new TextEncoder().encode('gender-reveal-secret-key-2025');
+const JWT_SECRET_KEY = 'gender-reveal-secret-key-2025';
+const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_KEY);
 
 export async function encryptData(data: RevealData): Promise<string> {
   try {
     // 안전한 타입 변환을 위해 unknown으로 먼저 변환
-    const jwtData = data as unknown as Record<string, unknown>;
+    const jwtData = { ...data } as unknown as Record<string, unknown>;
     return await new jose.SignJWT(jwtData)
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('30d')
+      .setExpirationTime('7d')
       .sign(JWT_SECRET);
   } catch (error) {
     console.error('Error encrypting data:', error);

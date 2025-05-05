@@ -245,4 +245,6 @@ next-env.d.ts
 .bolt/
 
 # cursor
-.cursor/*
+.cursor/
+
+-p/
