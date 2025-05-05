@@ -18,33 +18,33 @@ interface AnimationSettingsFormProps {
 export function AnimationSettingsForm({ form, onPreviousStep, loading, onSubmit }: AnimationSettingsFormProps) {
   const handleSubmit = async () => {
     try {
-      console.log('[DEBUG] 애니메이션 설정 폼 - 제출 버튼 클릭됨');
-      console.log('[DEBUG] 폼 데이터:', form.getValues());
-      console.log('[DEBUG] 폼 상태:', {
-        isDirty: form.formState.isDirty,
-        isValid: form.formState.isValid,
-        isSubmitting: form.formState.isSubmitting,
-        isSubmitSuccessful: form.formState.isSubmitSuccessful,
-        errors: form.formState.errors
-      });
+      // console.log('[DEBUG] 애니메이션 설정 폼 - 제출 버튼 클릭됨');
+      // console.log('[DEBUG] 폼 데이터:', form.getValues());
+      // console.log('[DEBUG] 폼 상태:', {
+      //   isDirty: form.formState.isDirty,
+      //   isValid: form.formState.isValid,
+      //   isSubmitting: form.formState.isSubmitting,
+      //   isSubmitSuccessful: form.formState.isSubmitSuccessful,
+      //   errors: form.formState.errors
+      // });
       
       // 폼 검증 상태 확인
       const isValid = await form.trigger();
-      console.log('[DEBUG] 폼 유효성 검증 결과:', isValid);
+      // console.log('[DEBUG] 폼 유효성 검증 결과:', isValid);
       
       if (isValid) {
-        console.log('[DEBUG] onSubmit 함수 호출 시도');
+        // console.log('[DEBUG] onSubmit 함수 호출 시도');
         await onSubmit();
-        console.log('[DEBUG] onSubmit 함수 호출 완료');
+        // console.log('[DEBUG] onSubmit 함수 호출 완료');
       } else {
-        console.log('[DEBUG] 폼 유효성 검증 실패');
-        console.log('[DEBUG] 폼 오류:', form.formState.errors);
+        // console.log('[DEBUG] 폼 유효성 검증 실패');
+        // console.log('[DEBUG] 폼 오류:', form.formState.errors);
         
         // 폼 오류 메시지를 사용자에게 표시
         const errorMessages = Object.entries(form.formState.errors)
           .map(([field, error]) => `${field}: ${error.message}`)
           .join(', ');
-        console.log('[DEBUG] 오류 메시지:', errorMessages);
+        // console.log('[DEBUG] 오류 메시지:', errorMessages);
       }
     } catch (error) {
       console.error('[ERROR] 제출 처리 중 오류 발생:', error);

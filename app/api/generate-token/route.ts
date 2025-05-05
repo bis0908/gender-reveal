@@ -35,16 +35,16 @@ interface MultipleBabiesRequest {
 type RevealRequest = SingleBabyRequest | MultipleBabiesRequest;
 
 export async function POST(request: Request) {
-  console.log('[DEBUG:API] POST 요청 받음 /api/generate-token');
+  // console.log('[DEBUG:API] POST 요청 받음 /api/generate-token');
   
   try {
     // 요청 본문 텍스트 확인
     const requestText = await request.text();
-    console.log('[DEBUG:API] 요청 본문 텍스트:', requestText);
+    // console.log('[DEBUG:API] 요청 본문 텍스트:', requestText);
     
     // 빈 요청 처리
     if (!requestText || requestText.trim() === '') {
-      console.log('[DEBUG:API] 요청 본문이 비어있음');
+      // console.log('[DEBUG:API] 요청 본문이 비어있음');
       return NextResponse.json({ error: '요청 본문이 비어있습니다.' }, { status: 400 });
     }
     
@@ -57,11 +57,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '잘못된 JSON 형식입니다.' }, { status: 400 });
     }
     
-    console.log('[DEBUG:API] 요청 데이터:', JSON.stringify(data, null, 2));
+    // console.log('[DEBUG:API] 요청 데이터:', JSON.stringify(data, null, 2));
     
     // 필수 필드 검증
     if (!data.motherName || !data.fatherName || !data.animationType) {
-      console.log('[DEBUG:API] 필수 필드 누락');
+      // console.log('[DEBUG:API] 필수 필드 누락');
       return NextResponse.json(
         { error: '필수 정보가 누락되었습니다.' },
         { status: 400 }
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     // 다태아 여부에 따라 추가 검증
     if (data.isMultiple) {
       if (!data.babiesInfo || data.babiesInfo.length < 2) {
-        console.log('[DEBUG:API] 다태아 정보 불완전');
+        // console.log('[DEBUG:API] 다태아 정보 불완전');
         return NextResponse.json(
           { error: '다태아 정보가 올바르지 않습니다. 최소 2명 이상의 아기 정보가 필요합니다.' },
           { status: 400 }
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       }
     } else {
       if (!data.babyName || !data.gender) {
-        console.log('[DEBUG:API] 아기 이름/성별 정보 누락');
+        // console.log('[DEBUG:API] 아기 이름/성별 정보 누락');
         return NextResponse.json(
           { error: '아기 이름과 성별 정보가 필요합니다.' },
           { status: 400 }
@@ -102,9 +102,9 @@ export async function POST(request: Request) {
       )
     };
     
-    console.log('[DEBUG:API] 토큰 데이터 구성:', JSON.stringify(tokenData, null, 2));
-    console.log('[DEBUG:API] JWT 비밀 키 길이:', JWT_SECRET.length);
-    console.log('[DEBUG:API] JWT 만료 시간:', JWT_EXPIRATION);
+    // console.log('[DEBUG:API] 토큰 데이터 구성:', JSON.stringify(tokenData, null, 2));
+    // console.log('[DEBUG:API] JWT 비밀 키 길이:', JWT_SECRET.length);
+    // console.log('[DEBUG:API] JWT 만료 시간:', JWT_EXPIRATION);
     
     try {
       // JWT 토큰 생성 (환경 변수에서 만료 시간 설정)
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
         .setExpirationTime(JWT_EXPIRATION)
         .sign(JWT_SECRET);
       
-      console.log('[DEBUG:API] 토큰 생성 성공, 길이:', token.length);
+      // console.log('[DEBUG:API] 토큰 생성 성공, 길이:', token.length);
       
       // 토큰 반환 (NextResponse.json 사용)
       return NextResponse.json({ token, success: true });
