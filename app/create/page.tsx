@@ -22,8 +22,9 @@ export default function CreatePage() {
           <CardHeader className="bg-gradient-to-r from-baby-blue-light/10 to-baby-pink-light/10">
             <CardTitle className="text-xl font-semibold">Gender Reveal 정보</CardTitle>
             <CardDescription>
-              가족 정보를 입력하고 공개 애니메이션을 선택하세요. 쌍둥이, 세쌍둥이 등 다태아 정보도 입력할 수 있습니다.
+              가족 정보를 입력하고 애니메이션을 선택하세요. 쌍둥이, 세쌍둥이 등 다태아 정보도 입력할 수 있습니다.
             </CardDescription>
+              <p className="text-xs text-red-500">입력된 정보는 수집하거나 저장하지 않습니다.</p>
           </CardHeader>
           <CardContent>
             <RevealForm />

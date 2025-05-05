@@ -152,7 +152,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
         <Button 
           type="button" 
           onClick={onNextStep}
-          className="flex items-center gap-2 bg-baby-blue hover:bg-baby-blue-dark text-white"
+          className="flex items-center gap-2 bg-baby-blue-dark text-white"
         >
           다음
           <ArrowRightIcon className="h-4 w-4" />

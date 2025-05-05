@@ -218,6 +218,7 @@ export function RevealForm() {
               form={form} 
               onPreviousStep={() => handleTabChange("details")} 
               loading={loading}
+              onSubmit={form.handleSubmit(onSubmit)}
             />
             
             {generatedLink && (

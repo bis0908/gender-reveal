@@ -12,9 +12,10 @@ interface AnimationSettingsFormProps {
   form: UseFormReturn<FormValues>;
   onPreviousStep: () => void;
   loading: boolean;
+  onSubmit: () => void;
 }
 
-export function AnimationSettingsForm({ form, onPreviousStep, loading }: AnimationSettingsFormProps) {
+export function AnimationSettingsForm({ form, onPreviousStep, loading, onSubmit }: AnimationSettingsFormProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-4">
@@ -70,10 +71,11 @@ export function AnimationSettingsForm({ form, onPreviousStep, loading }: Animati
         </Button>
         
         <Button 
-          type="submit" 
+          type="button"
           size="lg" 
           disabled={loading}
           className="w-full sm:w-auto"
+          onClick={onSubmit}
         >
           {loading ? "생성 중..." : "Gender reveal 만들기"}
         </Button>
