@@ -294,7 +294,7 @@ export default function RevealPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
-          <p className="mt-4 text-gray-600">공개 로딩 중...</p>
+          <p className="mt-4 text-gray-600">Gender Reveal 로딩 중...</p>
         </div>
       </div>
     );
@@ -330,6 +330,7 @@ export default function RevealPage() {
   
   const { motherName, fatherName, dueDate, message, animationType, countdownTime } = revealData;
   const { name: currentBabyName, gender: currentGender } = getCurrentBaby();
+  
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const isDemo = demoId !== null;
   
@@ -424,9 +425,11 @@ export default function RevealPage() {
                     <Button 
                       size="lg"
                       onClick={handleStartReveal}
-                      className="relative overflow-hidden group"
+                      className="relative overflow-hidden group w-full md:w-auto"
                     >
-                      <span className="relative z-10">🎉 우리 {currentBabyName}의 성별 공개 🎊</span>
+                      <span className="relative z-10 whitespace-normal break-words text-center px-2">
+                        🎉 우리 {revealData.babiesInfo?.map(baby => baby.name).join(', ')}의 성별 공개 🎊
+                      </span>
                       <span className="absolute inset-0 bg-gradient-to-r from-baby-blue to-baby-pink opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Button>
                   </div>
