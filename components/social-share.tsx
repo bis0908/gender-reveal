@@ -43,18 +43,11 @@ export function SocialShare({
   // 공유 텍스트 생성
   const getShareText = useCallback(() => {
     if (multipleBabies && multipleBabies.length > 0) {
-      const boyCount = multipleBabies.filter(baby => baby.gender === 'boy').length;
-      const girlCount = multipleBabies.filter(baby => baby.gender === 'girl').length;
-      
-      const genderText = [];
-      if (boyCount > 0) genderText.push(`남자아이 ${boyCount}명`);
-      if (girlCount > 0) genderText.push(`여자아이 ${girlCount}명`);
-      
-      return `${motherName}와(과) ${fatherName}의 Gender Reveal - ${genderText.join(', ')}입니다! 축하해주세요! 🎉`;
+      return `${motherName}와(과) ${fatherName}의 Gender Reveal에 초대합니다! 함께 축하해주세요! 🎉`;
     }
     
-    return `${motherName}와(과) ${fatherName}의 Gender Reveal - ${gender === 'boy' ? '남자아이' : '여자아이'}입니다! 축하해주세요! 🎉`;
-  }, [motherName, fatherName, gender, multipleBabies]);
+    return `${motherName}와(과) ${fatherName}의 Gender Reveal에 초대합니다! 함께 축하해주세요! 🎉`;
+  }, [motherName, fatherName, multipleBabies]);
   
   const shareText = getShareText();
   
