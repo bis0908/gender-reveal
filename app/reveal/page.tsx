@@ -428,7 +428,7 @@ export default function RevealPage() {
                       className="relative overflow-hidden group w-full md:w-auto"
                     >
                       <span className="relative z-10 whitespace-normal break-words text-center px-2">
-                        🎉 우리 {revealData.babiesInfo?.map(baby => baby.name).join(', ')}의 성별 공개 🎊
+                        🎉 {isMultipleBabies ? "우리 아이들" : `우리 ${currentBabyName}`}의 성별 공개 🎊
                       </span>
                       <span className="absolute inset-0 bg-gradient-to-r from-baby-blue to-baby-pink opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Button>

@@ -35,15 +35,6 @@ export function Header() {
           </Link>
         </nav>
         
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2">
-            <Heart size={16} className="text-baby-pink" />
-            <span>공유하기</span>
-          </Button>
-          <Button variant="default" size="sm">
-            <Link href="/create">Gender Reveal 만들기</Link>
-          </Button>
-        </div>
       </div>
     </header>
   );
