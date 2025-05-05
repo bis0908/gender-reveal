@@ -183,7 +183,7 @@ export function FallingAnimation({ gender, revealed, onComplete }: FallingAnimat
           animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5, delay: 1.5 }}
         >
-          {gender === 'boy' ? '남자아이입니다!' : '여자아이입니다!'}
+          {gender === 'boy' ? '왕자님 입니다!' : '공주님 입니다!'}
         </motion.div>
       </motion.div>
     </div>
