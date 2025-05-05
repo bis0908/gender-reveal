@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
@@ -12,7 +12,8 @@ import { RevealIntro } from './components/RevealIntro';
 import { RevealAnimation } from './components/RevealAnimation';
 import { RevealResults } from './components/RevealResults';
 
-export default function RevealPage() {
+// 검색 파라미터를 처리하는 별도의 클라이언트 컴포넌트
+function RevealContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const demoId = searchParams.get('demo');
@@ -215,9 +216,7 @@ export default function RevealPage() {
   const isDemo = demoId !== null;
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
+    <>
       {/* 결과 영역 강조 효과 스타일 */}
       <style jsx global>{`
         @keyframes result-pulse {
@@ -279,6 +278,23 @@ export default function RevealPage() {
           />
         )}
       </main>
+    </>
+  );
+}
+
+// 폴백 컴포넌트
+function RevealFallback() {
+  return <LoadingState />;
+}
+
+export default function RevealPage() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <Suspense fallback={<RevealFallback />}>
+        <RevealContent />
+      </Suspense>
       
       <Footer />
     </div>
