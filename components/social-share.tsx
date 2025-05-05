@@ -34,22 +34,13 @@ export function SocialShare({
   url, 
   title, 
   motherName, 
-  fatherName, 
-  gender, 
-  multipleBabies 
-}: SocialShareProps) {
+  fatherName}: SocialShareProps) {
   const [copied, setCopied] = useState(false);
   
   // 공유 텍스트 생성
-  const getShareText = useCallback(() => {
-    if (multipleBabies && multipleBabies.length > 0) {
-      return `${motherName}와(과) ${fatherName}의 Gender Reveal에 초대합니다! 함께 축하해주세요! 🎉`;
-    }
-    
+  const shareText = useCallback(() => {
     return `${motherName}와(과) ${fatherName}의 Gender Reveal에 초대합니다! 함께 축하해주세요! 🎉`;
-  }, [motherName, fatherName, multipleBabies]);
-  
-  const shareText = getShareText();
+  }, [motherName, fatherName])();
   
   const copyToClipboard = async () => {
     try {
