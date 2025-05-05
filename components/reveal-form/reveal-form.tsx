@@ -122,11 +122,13 @@ export function RevealForm() {
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     
-    // 스크롤을 탭 컨테이너 상단으로 이동
+    // 스크롤을 탭 리스트 상단으로 이동 (header 높이를 뺀 만큼)
     setTimeout(() => {
-      if (tabsRef.current) {
+      const tabsList = document.querySelector('.tabs-list');
+      if (tabsList) {
+        const headerHeight = document.querySelector('header')?.offsetHeight || 0;
         window.scrollTo({
-          top: tabsRef.current.offsetTop - 20,
+          top: tabsList.getBoundingClientRect().top + window.scrollY - headerHeight,
           behavior: 'smooth'
         });
       }
@@ -206,7 +208,7 @@ export function RevealForm() {
           onValueChange={handleTabChange}
           ref={tabsRef}
         >
-          <TabsList className="grid w-full grid-cols-2 rounded-xl mb-4 p-1.5 bg-gradient-to-r from-baby-blue-light/50 to-baby-pink-light/50 h-auto min-h-[60px]">
+          <TabsList className="grid w-full grid-cols-2 rounded-xl mb-4 p-1.5 bg-gradient-to-r from-baby-blue-light/50 to-baby-pink-light/50 h-auto min-h-[60px] tabs-list">
             <TabsTrigger 
               value="details" 
               className="data-[state=active]:bg-white data-[state=active]:text-gray-800 data-[state=active]:font-semibold data-[state=active]:shadow-md rounded-lg py-3.5 transition-all duration-300 flex items-center gap-2 h-full"
