@@ -83,13 +83,42 @@ export function RevealForm() {
       
       console.log('[DEBUG] API 응답 상태:', response.status, response.statusText);
       
+      // 응답 확인
+      const responseText = await response.text();
+      console.log('[DEBUG] API 응답 텍스트:', responseText);
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('[ERROR] API 오류 응답:', errorData);
-        throw new Error(errorData.error || '토큰 생성에 실패했습니다.');
+        let errorMessage = '토큰 생성에 실패했습니다.';
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (parseError) {
+          console.error('[ERROR] 오류 응답 파싱 실패:', parseError);
+        }
+        throw new Error(errorMessage);
       }
       
-      const { token } = await response.json();
+      // 응답이 비어있는지 확인
+      if (!responseText || responseText.trim() === '') {
+        throw new Error('서버에서 빈 응답이 반환되었습니다.');
+      }
+      
+      // JSON 응답 파싱
+      let tokenData: { token?: string };
+      try {
+        tokenData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('[ERROR] JSON 파싱 오류:', parseError, '응답 텍스트:', responseText);
+        throw new Error('서버 응답을 파싱할 수 없습니다.');
+      }
+      
+      if (!tokenData || !tokenData.token) {
+        throw new Error('토큰 정보가 올바르지 않습니다.');
+      }
+      
+      const token = tokenData.token;
       console.log('[DEBUG] 토큰 생성 성공');
       
       // Create URL with the token
@@ -108,7 +137,7 @@ export function RevealForm() {
       console.error('[ERROR] 토큰 생성 과정 오류:', error);
       toast({
         title: "오류",
-        description: "Gender Reveal 생성에 실패했습니다. 다시 시도해주세요.",
+        description: error instanceof Error ? error.message : "Gender Reveal 생성에 실패했습니다. 다시 시도해주세요.",
         variant: "destructive",
       });
       console.error(error);

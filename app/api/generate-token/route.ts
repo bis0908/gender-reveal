@@ -38,8 +38,25 @@ export async function POST(request: Request) {
   console.log('[DEBUG:API] POST 요청 받음 /api/generate-token');
   
   try {
+    // 요청 본문 텍스트 확인
+    const requestText = await request.text();
+    console.log('[DEBUG:API] 요청 본문 텍스트:', requestText);
+    
+    // 빈 요청 처리
+    if (!requestText || requestText.trim() === '') {
+      console.log('[DEBUG:API] 요청 본문이 비어있음');
+      return NextResponse.json({ error: '요청 본문이 비어있습니다.' }, { status: 400 });
+    }
+    
     // 요청 데이터 파싱
-    const data = await request.json() as RevealRequest;
+    let data: RevealRequest;
+    try {
+      data = JSON.parse(requestText) as RevealRequest;
+    } catch (parseError) {
+      console.error('[ERROR:API] 요청 본문 파싱 오류:', parseError);
+      return NextResponse.json({ error: '잘못된 JSON 형식입니다.' }, { status: 400 });
+    }
+    
     console.log('[DEBUG:API] 요청 데이터:', JSON.stringify(data, null, 2));
     
     // 필수 필드 검증
@@ -99,17 +116,14 @@ export async function POST(request: Request) {
       
       console.log('[DEBUG:API] 토큰 생성 성공, 길이:', token.length);
       
-      // 토큰 반환
-      return NextResponse.json({ token });
+      // 토큰 반환 (NextResponse.json 사용)
+      return NextResponse.json({ token, success: true });
     } catch (jwtError) {
       console.error('[ERROR:API] JWT 생성 오류:', jwtError);
-      throw jwtError;
+      return NextResponse.json({ error: 'JWT 토큰 생성 오류가 발생했습니다.', success: false }, { status: 500 });
     }
   } catch (error) {
     console.error('[ERROR:API] 토큰 생성 오류:', error);
-    return NextResponse.json(
-      { error: '토큰 생성 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '토큰 생성 중 오류가 발생했습니다.', success: false }, { status: 500 });
   }
 } 
