@@ -12,39 +12,8 @@ import { CountdownTimer } from '@/components/countdown-timer';
 import { SocialShare } from '@/components/social-share';
 import { formatDate } from '@/lib/utils';
 import type { RevealData, Gender } from '@/lib/types';
-import { CalendarHeart, Baby, Heart } from 'lucide-react';
+import { CalendarHeart, Baby } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// 다태아 데모 예제 추가
-const multipleBabiesDemos = {
-  "twins1": {
-    motherName: "지현",
-    fatherName: "민준",
-    isMultiple: true,
-    babiesInfo: [
-      { name: "콩이", gender: "boy" },
-      { name: "팥이", gender: "girl" }
-    ],
-    dueDate: "2023-12-25",
-    message: "우리 콩이와 팥이가 드디어 성별을 알려드립니다! 함께 축하해주세요!",
-    animationType: "confetti",
-    countdownTime: 5
-  },
-  "triplets1": {
-    motherName: "서연",
-    fatherName: "준호",
-    isMultiple: true,
-    babiesInfo: [
-      { name: "첫째", gender: "boy" },
-      { name: "둘째", gender: "boy" },
-      { name: "셋째", gender: "girl" }
-    ],
-    dueDate: "2024-02-15",
-    message: "우리 세쌍둥이 성별을 공개합니다! 많은 축하 부탁드려요!",
-    animationType: "fireworks",
-    countdownTime: 5
-  }
-};
 
 // 기존 데모 예제와 다태아 데모 예제 합치기
 const demoExamples = {
