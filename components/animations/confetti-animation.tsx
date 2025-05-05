@@ -72,7 +72,7 @@ export function ConfettiAnimation({ gender, revealed, onComplete }: ConfettiAnim
           animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5, delay: 1 }}
         >
-          It&apos;s a {gender === 'boy' ? 'BOY!' : 'GIRL!'}
+          {gender === 'boy' ? '왕자님 입니다!' : '공주님 입니다!'}
         </motion.div>
       </motion.div>
     </div>

@@ -42,6 +42,11 @@ const config: Config = {
             DEFAULT: '#F9A8D4',
             dark: '#EC4899',
           },
+          neutral: {
+            light: '#C6B6DE',
+            DEFAULT: '#9465C8',
+            dark: '#7A4DAF',
+          },
           mint: {
             light: '#ECFDF5',
             DEFAULT: '#6EE7B7',

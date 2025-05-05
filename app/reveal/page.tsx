@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -13,6 +13,7 @@ import { SocialShare } from '@/components/social-share';
 import { formatDate } from '@/lib/utils';
 import type { RevealData, Gender } from '@/lib/types';
 import { CalendarHeart, Baby, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // 다태아 데모 예제 추가
 const multipleBabiesDemos = {
@@ -129,6 +130,9 @@ export default function RevealPage() {
   const [isFinished, setIsFinished] = useState(false);
   const [currentBabyIndex, setCurrentBabyIndex] = useState(0); // 현재 표시 중인 아기 인덱스
   
+  // 결과 영역에 대한 ref 생성
+  const resultSectionRef = useRef<HTMLDivElement>(null);
+  
   // 다태아인지 확인하는 헬퍼 함수
   const isMultipleBabies = revealData?.isMultiple && revealData?.babiesInfo && revealData.babiesInfo.length > 1;
   
@@ -227,12 +231,62 @@ export default function RevealPage() {
       if (currentBabyIndex < revealData.babiesInfo.length - 1) {
         goToNextBaby();
       } else {
-        setIsFinished(true);
+        // 딜레이 후 종료 및 결과 영역으로 스크롤
+        setTimeout(() => {
+          setIsFinished(true);
+          // 딜레이 후 결과 영역으로 스크롤
+          setTimeout(() => {
+            // 화면 상단으로 결과 영역이 오도록 scrollIntoView 대신 scrollTo 사용
+            if (resultSectionRef.current) {
+              const offsetTop = resultSectionRef.current.offsetTop - 80; // 상단 여백 증가
+              window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+              });
+            }
+            // 결과 영역에 시각적 강조 효과 추가
+            highlightResultSection();
+          }, 300);
+        }, 1000);
       }
     } else {
-      // 단일 아기인 경우 바로 종료
-      setIsFinished(true);
+      // 단일 아기인 경우 딜레이 후 종료 및 결과 영역으로 스크롤
+      setTimeout(() => {
+        setIsFinished(true);
+        // 딜레이 후 결과 영역으로 스크롤
+        setTimeout(() => {
+          // 화면 상단으로 결과 영역이 오도록 scrollIntoView 대신 scrollTo 사용
+          if (resultSectionRef.current) {
+            const offsetTop = resultSectionRef.current.offsetTop - 80; // 상단 여백 증가
+            window.scrollTo({
+              top: offsetTop,
+              behavior: 'smooth'
+            });
+          }
+          // 결과 영역에 시각적 강조 효과 추가
+          highlightResultSection();
+        }, 300);
+      }, 1000);
     }
+  };
+  
+  // 결과 영역 강조 효과 함수
+  const highlightResultSection = () => {
+    if (!resultSectionRef.current) return;
+    
+    // 스크롤 후 약간의 딜레이를 두고 강조 효과 추가
+    setTimeout(() => {
+      if (!resultSectionRef.current) return;
+      
+      // 결과 영역에 일시적인 강조 효과 클래스 추가
+      resultSectionRef.current.classList.add('result-highlight');
+      
+      // 일정 시간 후 강조 효과 제거
+      setTimeout(() => {
+        if (!resultSectionRef.current) return;
+        resultSectionRef.current.classList.remove('result-highlight');
+      }, 1000);
+    }, 600);
   };
   
   if (isLoading) {
@@ -297,6 +351,20 @@ export default function RevealPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       
+      {/* 결과 영역 강조 효과 스타일 */}
+      <style jsx global>{`
+        @keyframes result-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(148, 101, 200, 0.4); }
+          70% { box-shadow: 0 0 0 15px rgba(148, 101, 200, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(148, 101, 200, 0); }
+        }
+        
+        .result-highlight {
+          animation: result-pulse 1s ease-in-out;
+          border-radius: 0.5rem;
+        }
+      `}</style>
+      
       <main className="flex-1">
         {!startCountdown && (
           <div className="container mx-auto py-10 px-4 max-w-4xl">
@@ -358,7 +426,7 @@ export default function RevealPage() {
                       onClick={handleStartReveal}
                       className="relative overflow-hidden group"
                     >
-                      <span className="relative z-10">Gender reveal하기</span>
+                      <span className="relative z-10">🎉 우리 {currentBabyName}의 성별 공개 🎊</span>
                       <span className="absolute inset-0 bg-gradient-to-r from-baby-blue to-baby-pink opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Button>
                   </div>
@@ -400,6 +468,7 @@ export default function RevealPage() {
                 seconds={countdownTime || 5} 
                 onComplete={handleCountdownComplete} 
                 gender={currentGender}
+                babyName={currentBabyName}
               />
             ) : (
               <div className="relative h-full">
@@ -423,8 +492,18 @@ export default function RevealPage() {
         )}
         
         {isFinished && (
-          <div className="container mx-auto py-10 px-4 max-w-4xl">
-            <div className="mb-8 text-center">
+          <div ref={resultSectionRef} className="container mx-auto py-10 px-4 max-w-4xl">
+            <div className="relative mb-6">
+              <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-baby-blue via-baby-neutral to-baby-pink rounded-full opacity-70" />
+              
+            </div>
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="mb-8 text-center"
+            >
               {isMultipleBabies && revealData.babiesInfo ? (
                 <>
                   <h2 className="text-3xl font-bold mb-4">
@@ -433,10 +512,18 @@ export default function RevealPage() {
                   <p className="text-gray-600">
                     {motherName}와(과) {fatherName}의 아기들: {getBabiesGenderSummary()}
                   </p>
-                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"
+                  >
                     {revealData.babiesInfo.map((baby, index) => (
-                      <div 
+                      <motion.div 
                         key={`baby-${baby.name}-${index}`}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 * index }}
                         className={`p-4 rounded-lg shadow-sm border-2 ${
                           baby.gender === 'boy' ? 'border-baby-blue-light bg-baby-blue-light/10' : 'border-baby-pink-light bg-baby-pink-light/10'
                         }`}
@@ -449,9 +536,9 @@ export default function RevealPage() {
                         <p className="text-gray-700">
                           {baby.gender === 'boy' ? '남자아이' : '여자아이'}
                         </p>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </>
               ) : (
                 <>
@@ -463,20 +550,31 @@ export default function RevealPage() {
                   </p>
                 </>
               )}
-            </div>
+            </motion.div>
             
             {!isDemo && (
-              <SocialShare 
-                url={shareUrl}
-                title={`${motherName}와(과) ${fatherName}의 Gender Reveal`}
-                motherName={motherName}
-                fatherName={fatherName}
-                gender={isMultipleBabies ? undefined : currentGender}
-                multipleBabies={isMultipleBabies ? revealData.babiesInfo : undefined}
-              />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+              >
+                <SocialShare 
+                  url={shareUrl}
+                  title={`${motherName}와(과) ${fatherName}의 Gender Reveal`}
+                  motherName={motherName}
+                  fatherName={fatherName}
+                  gender={isMultipleBabies ? undefined : currentGender}
+                  multipleBabies={isMultipleBabies ? revealData.babiesInfo : undefined}
+                />
+              </motion.div>
             )}
             
-            <div className="mt-8 text-center space-y-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+              className="mt-8 text-center space-y-6"
+            >
               <Button 
                 variant={currentGender === 'boy' ? 'boy' : 'girl'} 
                 size="lg"
@@ -505,7 +603,7 @@ export default function RevealPage() {
                   </Button>
                 </div>
               )}
-            </div>
+            </motion.div>
           </div>
         )}
       </main>

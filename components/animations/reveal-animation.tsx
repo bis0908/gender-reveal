@@ -37,16 +37,16 @@ export function RevealAnimation({ gender, revealed, onComplete }: RevealAnimatio
             animate={revealed ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            It&apos;s a
+            {gender === 'boy' ? '왕자님' : '공주님'}
           </motion.div>
           
           <motion.div
-            className={`text-9xl sm:text-[10rem] font-bold text-${genderColor}-dark mt-4 text-center`}
+            className={`text-8xl sm:text-9xl font-bold text-${genderColor}-dark mt-4 text-center`}
             initial={{ y: 70, opacity: 0 }}
             animate={revealed ? { y: 0, opacity: 1 } : { y: 70, opacity: 0 }}
             transition={{ duration: 0.5, delay: 1 }}
           >
-            {gender === 'boy' ? 'BOY!' : 'GIRL!'}
+            입니다!
           </motion.div>
         </motion.div>
       </motion.div>

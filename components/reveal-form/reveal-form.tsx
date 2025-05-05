@@ -30,10 +30,7 @@ export function RevealForm() {
       animationType: "confetti",
       countdownTime: 5,
       isMultiple: false,
-      babiesInfo: [
-        { name: "", gender: "boy" },
-        { name: "", gender: "girl" }
-      ]
+      babiesInfo: []
     },
   });
 
@@ -54,6 +51,7 @@ export function RevealForm() {
   }, [isMultiple, form]);
 
   const onSubmit = async (data: FormValues) => {
+    console.log('[DEBUG] onSubmit 함수 실행됨', data);
     setLoading(true);
     
     try {
@@ -72,6 +70,8 @@ export function RevealForm() {
         ...(data.message && { message: data.message })
       };
       
+      console.log('[DEBUG] API 호출 전 데이터:', essentialData);
+      
       // API를 통해 토큰 생성
       const response = await fetch('/api/generate-token', {
         method: 'POST',
@@ -81,15 +81,20 @@ export function RevealForm() {
         body: JSON.stringify(essentialData),
       });
       
+      console.log('[DEBUG] API 응답 상태:', response.status, response.statusText);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('[ERROR] API 오류 응답:', errorData);
         throw new Error(errorData.error || '토큰 생성에 실패했습니다.');
       }
       
       const { token } = await response.json();
+      console.log('[DEBUG] 토큰 생성 성공');
       
       // Create URL with the token
       const revealUrl = `${window.location.origin}/reveal?token=${encodeURIComponent(token)}`;
+      console.log('[DEBUG] 생성된 URL:', revealUrl);
       
       // Save the generated link
       setGeneratedLink(revealUrl);
@@ -100,6 +105,7 @@ export function RevealForm() {
         variant: "default",
       });
     } catch (error) {
+      console.error('[ERROR] 토큰 생성 과정 오류:', error);
       toast({
         title: "오류",
         description: "Gender Reveal 생성에 실패했습니다. 다시 시도해주세요.",
@@ -108,6 +114,7 @@ export function RevealForm() {
       console.error(error);
     } finally {
       setLoading(false);
+      console.log('[DEBUG] onSubmit 처리 완료, loading 상태:', false);
     }
   };
 
@@ -177,6 +184,13 @@ export function RevealForm() {
 
   // 다음 단계로 이동 처리
   const handleNextStep = () => {
+    console.log('[DEBUG] 다음 단계 호출, 현재 폼 데이터:', form.getValues());
+    console.log('[DEBUG] 폼 상태:', {
+      isDirty: form.formState.isDirty,
+      isValid: form.formState.isValid,
+      errors: form.formState.errors
+    });
+    
     if (validateFirstStep()) {
       handleTabChange("animation");
     }
@@ -218,7 +232,25 @@ export function RevealForm() {
               form={form} 
               onPreviousStep={() => handleTabChange("details")} 
               loading={loading}
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={async () => {
+                console.log('[DEBUG] AnimationSettingsForm의 onSubmit 래퍼 함수 호출됨');
+                
+                // 수동으로 form.handleSubmit 호출하여 검증 및 제출 처리
+                return form.handleSubmit(async (data) => {
+                  console.log('[DEBUG] 폼 제출 핸들러 내부, 데이터 검증 완료');
+                  console.log('[DEBUG] 최종 제출 데이터:', data);
+                  try {
+                    await onSubmit(data);
+                    console.log('[DEBUG] onSubmit 완료');
+                  } catch (err) {
+                    console.error('[ERROR] 폼 제출 처리 중 오류:', err);
+                    if (err instanceof Error) {
+                      console.error('[ERROR] 오류 메시지:', err.message);
+                      console.error('[ERROR] 오류 스택:', err.stack);
+                    }
+                  }
+                })();
+              }}
             />
             
             {generatedLink && (
