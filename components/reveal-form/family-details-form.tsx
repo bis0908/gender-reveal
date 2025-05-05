@@ -15,6 +15,7 @@ import { BabyInfoForm } from '@/components/reveal-form/baby-info-form';
 import { MultipleBabiesForm } from '@/components/reveal-form/multiple-babies-form';
 import type { UseFormReturn } from 'react-hook-form';
 import type { FormValues } from '@/lib/schemas/reveal-form-schema';
+import { useState } from 'react';
 
 interface FamilyDetailsFormProps {
   form: UseFormReturn<FormValues>;
@@ -23,6 +24,7 @@ interface FamilyDetailsFormProps {
 
 export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) {
   const isMultiple = form.watch("isMultiple");
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -93,7 +95,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
         render={({ field }) => (
           <FormItem className="flex flex-col">
             <FormLabel>출산 예정일 (선택사항)</FormLabel>
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
@@ -104,7 +106,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "yyyy년 MM월 dd일", { locale: ko })
+                      format(field.value, "yyyy년 MM월 dd일 EEEE", { locale: ko })
                     ) : (
                       <span>날짜 선택</span>
                     )}
@@ -116,7 +118,10 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
                 <Calendar
                   mode="single"
                   selected={field.value}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    field.onChange(date);
+                    setCalendarOpen(false);
+                  }}
                   disabled={(date) =>
                     date < new Date()
                   }

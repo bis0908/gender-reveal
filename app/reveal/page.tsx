@@ -251,7 +251,7 @@ export default function RevealPage() {
           />
         )}
         
-        {startCountdown && !isFinished && (
+        {startCountdown && (
           <RevealAnimation
             isRevealed={isRevealed}
             gender={currentGender}
