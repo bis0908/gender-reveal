@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { AnimationType, Gender } from '@/lib/types';
+import type { AnimationType, Gender } from '@/lib/types';
 import { ConfettiAnimation } from '@/components/animations/confetti-animation';
 import { BalloonsAnimation } from '@/components/animations/balloons-animation';
 import { FireworksAnimation } from '@/components/animations/fireworks-animation';

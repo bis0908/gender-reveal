@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CopyIcon, CheckIcon } from 'lucide-react';
+import { CopyIcon, CheckIcon, ExternalLinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface GeneratedLinkCardProps {
@@ -55,6 +55,15 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
         >
           {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
           <span className="ml-2">{copied ? "복사됨" : "복사"}</span>
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={() => window.open(generatedLink, '_blank')}
+          className="flex-shrink-0"
+        >
+          <ExternalLinkIcon className="h-4 w-4" />
+          <span className="ml-2">테스트</span>
         </Button>
       </div>
       <p className="text-sm text-muted-foreground mt-2">
