@@ -20,10 +20,7 @@ export function AnimationRenderer({
 	isRevealed,
 	onComplete,
 }: AnimationRendererProps) {
-	console.log("AnimationRenderer 렌더링됨:", { animationType, isRevealed });
-
 	const handleComplete = () => {
-		console.log("애니메이션 완료됨, onComplete 호출");
 		if (onComplete) {
 			onComplete();
 		}

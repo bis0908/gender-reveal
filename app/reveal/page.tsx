@@ -53,9 +53,6 @@ function RevealContent() {
 	const goToNextBaby = () => {
 		if (isMultipleBabies && revealData?.babiesInfo) {
 			if (currentBabyIndex < revealData.babiesInfo.length - 1) {
-				console.log(
-					`다음 아기로 상태 변경: ${currentBabyIndex} -> ${currentBabyIndex + 1}`,
-				);
 				setIsRevealed(false);
 				setCurrentBabyIndex((prev) => prev + 1);
 				// 카운트다운 시작 전에 약간의 딜레이를 줌
@@ -135,8 +132,6 @@ function RevealContent() {
 	};
 
 	const handleAnimationComplete = () => {
-		console.log("handleAnimationComplete 호출됨", { currentBabyIndex });
-
 		// 이미 다음 단계로 진행 중인지 확인하는 플래그 변수
 		let isProcessing = false;
 
@@ -146,11 +141,6 @@ function RevealContent() {
 			if (isProcessing) return;
 			isProcessing = true;
 
-			console.log("애니메이션 완료 후 처리 시작", {
-				isMultipleBabies,
-				currentBabyIndex,
-			});
-
 			// 다태아 처리
 			if (isMultipleBabies && revealData?.babiesInfo) {
 				// 마지막 아기인지 확인
@@ -158,15 +148,12 @@ function RevealContent() {
 
 				if (isLastBaby) {
 					// 마지막 아기 - 결과 화면으로 이동
-					console.log("마지막 아기 애니메이션 완료, 결과 표시 예정");
 					setTimeout(() => {
-						console.log("결과 화면으로 이동");
 						setIsFinished(true);
 
 						// 결과 영역이 추가된 후에 스크롤
 						setTimeout(() => {
 							if (resultSectionRef.current) {
-								console.log("결과 영역으로 스크롤");
 								resultSectionRef.current.scrollIntoView({
 									behavior: "smooth",
 									block: "start",
@@ -177,25 +164,19 @@ function RevealContent() {
 					}, 4000);
 				} else {
 					// 다음 아기로 이동
-					console.log(
-						`아기 ${currentBabyIndex + 1} 애니메이션 완료, 다음 아기로 이동 예정`,
-					);
+
 					setTimeout(() => {
-						console.log("다음 아기로 이동 시작");
 						goToNextBaby();
 					}, 4000);
 				}
 			} else {
 				// 단일 아기 - 결과 화면으로 이동
-				console.log("단일 아기 애니메이션 완료, 결과 표시 예정");
 				setTimeout(() => {
-					console.log("결과 화면으로 이동");
 					setIsFinished(true);
 
 					// 결과 영역이 추가된 후에 스크롤
 					setTimeout(() => {
 						if (resultSectionRef.current) {
-							console.log("결과 영역으로 스크롤");
 							resultSectionRef.current.scrollIntoView({
 								behavior: "smooth",
 								block: "start",

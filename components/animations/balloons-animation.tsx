@@ -131,16 +131,8 @@ export function BalloonsAnimation({
 	// 콜백 실행 상태 추적
 	const callbackExecuted = useRef(false);
 
-	console.log("BalloonsAnimation 렌더링됨:", {
-		revealed,
-		balloons: balloons.length,
-	});
-
 	// 애니메이션 완료 처리를 위한 함수
 	const completeAnimation = () => {
-		console.log("풍선 애니메이션 완료 함수 호출됨", {
-			executed: callbackExecuted.current,
-		});
 		// 이미 실행되었거나 컴포넌트가 언마운트된 경우 중단
 		if (callbackExecuted.current || !isMounted.current) return;
 
@@ -148,7 +140,6 @@ export function BalloonsAnimation({
 		setAnimationCompleted(true);
 
 		if (onComplete) {
-			console.log("onComplete 콜백 호출");
 			onComplete();
 		}
 	};
@@ -168,8 +159,6 @@ export function BalloonsAnimation({
 
 		// 이미 풍선이 생성되었으면 다시 생성하지 않음
 		if (balloons.length > 0) return;
-
-		console.log("풍선 생성 로직 실행");
 
 		// Generate 15-20 balloons
 		const count = 15 + Math.floor(Math.random() * 5);
@@ -193,25 +182,22 @@ export function BalloonsAnimation({
 		}
 
 		setBalloons(newBalloons);
-		console.log(`${newBalloons.length}개의 풍선 생성 완료`);
 
 		// Trigger callback after a delay
 		const timer = setTimeout(() => {
-			console.log("풍선 애니메이션 타이머 실행됨");
 			completeAnimation();
 		}, 2500); // 2.5초로 조정 (텍스트 애니메이션과 일관성 유지)
 
 		// 콜백 실행을 보장하는 추가 타이머 (마지막 안전장치)
 		const guaranteeTimer = setTimeout(() => {
-			console.log("풍선 애니메이션 보장 타이머 실행됨");
 			completeAnimation();
 		}, 4000); // 4초 후 반드시 실행
 
 		return () => {
-			console.log("풍선 애니메이션 useEffect 정리 함수 실행");
 			clearTimeout(timer);
 			clearTimeout(guaranteeTimer);
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [revealed, gender, balloons.length]);
 
 	return (
@@ -234,7 +220,6 @@ export function BalloonsAnimation({
 					onAnimationComplete={() => {
 						if (revealed) {
 							// framer-motion 애니메이션 완료 이벤트를 추가로 활용
-							console.log("텍스트 애니메이션 완료됨");
 							setTimeout(completeAnimation, 1500);
 						}
 					}}

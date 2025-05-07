@@ -31,8 +31,6 @@ export function RevealAnimation({
 
 	// 애니메이션이 표시된 후 백업 타이머
 	useEffect(() => {
-		console.log("RevealAnimation - isRevealed 변경됨:", isRevealed);
-
 		// 백업 타이머 참조 저장
 		let backupTimer: NodeJS.Timeout | null = null;
 		// 백업 타이머 실행 여부 플래그
@@ -46,7 +44,6 @@ export function RevealAnimation({
 				if (backupExecuted) return;
 				backupExecuted = true;
 
-				console.log("RevealAnimation - 백업 타이머로 애니메이션 완료 처리");
 				onAnimationComplete();
 			}, 8000); // 8초로 조정 (일반 타이머보다 충분히 긴 시간)
 
