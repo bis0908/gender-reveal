@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 
 const montserrat = Montserrat({
 	subsets: ["latin"],
@@ -65,6 +66,9 @@ export const metadata: Metadata = {
 			},
 		],
 	},
+	other: {
+		"google-adsense-account": "ca-pub-9465556807993641",
+	},
 };
 
 export default function RootLayout({
@@ -74,6 +78,14 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="ko" suppressHydrationWarning>
+			<head>
+				<Script
+					async
+					src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9465556807993641"
+					crossOrigin="anonymous"
+					strategy="afterInteractive"
+				/>
+			</head>
 			<body className={`${montserrat.variable} font-sans antialiased`}>
 				<ThemeProvider
 					attribute="class"
