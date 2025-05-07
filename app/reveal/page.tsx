@@ -129,47 +129,50 @@ function RevealContent() {
 	};
 
 	const handleAnimationComplete = () => {
+		console.log("handleAnimationComplete 호출됨");
 		if (isMultipleBabies && revealData?.babiesInfo) {
 			// 다태아인 경우 다음 아기로 넘어가거나 종료
 			if (currentBabyIndex < revealData.babiesInfo.length - 1) {
 				goToNextBaby();
 			} else {
-				// 딜레이 후 종료 및 결과 영역으로 스크롤
+				// 딜레이 후 종료
 				setTimeout(() => {
+					console.log("setIsFinished(true) 타이머 실행됨");
 					setIsFinished(true);
-					// 딜레이 후 결과 영역으로 스크롤
+					// 결과 영역이 추가된 후에 스크롤
 					setTimeout(() => {
-						// 화면 상단으로 결과 영역이 오도록 scrollIntoView 대신 scrollTo 사용
 						if (resultSectionRef.current) {
-							const offsetTop = resultSectionRef.current.offsetTop - 80; // 상단 여백 증가
-							window.scrollTo({
-								top: offsetTop,
+							console.log("스크롤 타이머 실행됨");
+							// 결과 영역으로 스크롤
+							resultSectionRef.current.scrollIntoView({
 								behavior: "smooth",
+								block: "start",
 							});
+							// 결과 영역에 시각적 강조 효과 추가
+							highlightResultSection();
 						}
-						// 결과 영역에 시각적 강조 효과 추가
-						highlightResultSection();
 					}, 500);
 				}, 4000);
 			}
 		} else {
-			// 단일 아기인 경우 딜레이 후 종료 및 결과 영역으로 스크롤
+			// 단일 아기인 경우 딜레이 후 종료
 			setTimeout(() => {
+				console.log("setIsFinished(true) 타이머 실행됨");
 				setIsFinished(true);
-				// 딜레이 후 결과 영역으로 스크롤
+				// 결과 영역이 추가된 후에 스크롤
 				setTimeout(() => {
-					// 화면 상단으로 결과 영역이 오도록 scrollIntoView 대신 scrollTo 사용
 					if (resultSectionRef.current) {
-						const offsetTop = resultSectionRef.current.offsetTop - 80; // 상단 여백 증가
-						window.scrollTo({
-							top: offsetTop,
+						console.log("스크롤 타이머 실행됨");
+						// 결과 영역으로 스크롤
+						resultSectionRef.current.scrollIntoView({
 							behavior: "smooth",
+							block: "start",
 						});
+						// 결과 영역에 시각적 강조 효과 추가
+						highlightResultSection();
 					}
-					// 결과 영역에 시각적 강조 효과 추가
-					highlightResultSection();
 				}, 500);
-			}, 2000);
+			}, 4000);
 		}
 	};
 
@@ -247,15 +250,20 @@ function RevealContent() {
         .animation-container {
           position: relative;
           z-index: 1;
+          min-height: 60vh;
+          margin-bottom: 2rem;
         }
         
         .result-section {
           position: relative;
           z-index: 2;
+          scroll-margin-top: 80px;
+          padding-top: 2rem;
+          border-top: 1px solid rgba(200, 200, 200, 0.2);
         }
       `}</style>
 
-			<main className="flex-1">
+			<main className="flex-1 flex flex-col">
 				{!startCountdown && (
 					<RevealIntro
 						revealData={revealData}
@@ -265,35 +273,39 @@ function RevealContent() {
 				)}
 
 				{startCountdown && (
-					<RevealAnimation
-						isRevealed={isRevealed}
-						gender={currentGender}
-						babyName={currentBabyName}
-						animationType={animationType}
-						countdownTime={countdownTime || 5}
-						currentBabyIndex={isMultipleBabies ? currentBabyIndex : undefined}
-						totalBabies={
-							isMultipleBabies && revealData.babiesInfo
-								? revealData.babiesInfo.length
-								: undefined
-						}
-						onCountdownComplete={handleCountdownComplete}
-						onAnimationComplete={handleAnimationComplete}
-					/>
+					<div className="animation-container">
+						<RevealAnimation
+							isRevealed={isRevealed}
+							gender={currentGender}
+							babyName={currentBabyName}
+							animationType={animationType}
+							countdownTime={countdownTime || 3}
+							currentBabyIndex={isMultipleBabies ? currentBabyIndex : undefined}
+							totalBabies={
+								isMultipleBabies && revealData.babiesInfo
+									? revealData.babiesInfo.length
+									: undefined
+							}
+							onCountdownComplete={handleCountdownComplete}
+							onAnimationComplete={handleAnimationComplete}
+						/>
+					</div>
 				)}
 
 				{isFinished && (
-					<RevealResults
-						motherName={motherName}
-						fatherName={fatherName}
-						gender={isMultipleBabies ? undefined : currentGender}
-						babiesInfo={isMultipleBabies ? revealData.babiesInfo : undefined}
-						isMultipleBabies={!!isMultipleBabies}
-						isDemo={isDemo}
-						shareUrl={shareUrl}
-						onRestart={handleRestart}
-						resultSectionRef={resultSectionRef}
-					/>
+					<div className="result-section mt-10">
+						<RevealResults
+							motherName={motherName}
+							fatherName={fatherName}
+							gender={isMultipleBabies ? undefined : currentGender}
+							babiesInfo={isMultipleBabies ? revealData.babiesInfo : undefined}
+							isMultipleBabies={!!isMultipleBabies}
+							isDemo={isDemo}
+							shareUrl={shareUrl}
+							onRestart={handleRestart}
+							resultSectionRef={resultSectionRef}
+						/>
+					</div>
 				)}
 			</main>
 		</>

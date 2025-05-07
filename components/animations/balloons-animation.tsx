@@ -34,41 +34,84 @@ const Balloon = ({
 			}}
 			style={{ left: `${x}%` }}
 		>
+			{/* 풍선 본체 */}
 			<div
 				className="relative"
 				style={{
 					width: size,
-					height: size * 1.2,
+					height: size * 1.18,
 					backgroundColor: color,
-					borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
-					clipPath: "ellipse(50% 50% at 50% 45%)",
-					boxShadow: `0 0 10px rgba(0, 0, 0, 0.1), inset ${size / 20}px ${size / 10}px ${size / 5}px rgba(255, 255, 255, 0.3)`,
+					borderRadius: "50%", // 더 둥근 형태로 변경
+					boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+					position: "relative",
+					overflow: "hidden", // 빛 반사 효과가 풍선 밖으로 나가지 않도록
 				}}
 			>
+				{/* 주요 빛 반사 효과 - 왼쪽 상단 */}
 				<div
 					className="absolute rounded-full"
 					style={{
-						width: size * 0.4,
-						height: size * 0.2,
-						backgroundColor: "rgba(255, 255, 255, 0.4)",
+						width: size * 0.5,
+						height: size * 0.3,
+						background:
+							"radial-gradient(circle at center, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%)",
 						top: size * 0.15,
-						left: size * 0.15,
-						transform: "rotate(30deg)",
+						left: size * 0.1,
+						transform: "rotate(10deg)",
+					}}
+				/>
+
+				{/* 작은 빛 반사 효과 - 오른쪽 */}
+				<div
+					className="absolute rounded-full"
+					style={{
+						width: size * 0.25,
+						height: size * 0.15,
+						background:
+							"radial-gradient(circle at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%)",
+						top: size * 0.4,
+						right: size * 0.15,
+					}}
+				/>
+
+				{/* 풍선 하단 매듭 부분 */}
+				<div
+					className="absolute"
+					style={{
+						width: size * 0.2,
+						height: size * 0.15,
+						backgroundColor: color,
+						bottom: -size * 0.03,
+						left: "50%",
+						transform: "translateX(-50%)",
+						borderRadius: "0 0 40% 40%",
+						filter: "brightness(0.8)",
 					}}
 				/>
 			</div>
+
+			{/* 풍선 끈 */}
 			<div className="relative">
 				<div
-					className="absolute w-0.5 h-16 bg-gray-400 -bottom-16 left-1/2 -translate-x-1/2"
+					className="absolute h-16 bg-gray-400 -bottom-16 left-1/2 -translate-x-1/2"
 					style={{
-						transform: `translateX(-50%) rotate(${Math.random() * 10 - 5}deg)`,
-						background: "linear-gradient(to bottom, #666666, #999999)",
+						width: size * 0.03,
+						maxWidth: "2px",
+						minWidth: "1px",
+						transform: `translateX(-50%) rotate(${Math.random() * 6 - 3}deg)`,
+						background: "linear-gradient(to bottom, #888888, #bbbbbb)",
 					}}
 				/>
+
+				{/* 매듭 부분 */}
 				<div
-					className="absolute w-1.5 h-1.5 rounded-full bg-gray-500 -bottom-4 left-1/2 -translate-x-1/2"
+					className="absolute rounded-full -bottom-4 left-1/2 -translate-x-1/2"
 					style={{
-						boxShadow: "0 0 2px rgba(0, 0, 0, 0.3)",
+						width: size * 0.08,
+						height: size * 0.08,
+						backgroundColor: color,
+						filter: "brightness(0.85)",
+						boxShadow: "0 1px 2px rgba(0, 0, 0, 0.3)",
 					}}
 				/>
 			</div>
@@ -82,9 +125,33 @@ export function BalloonsAnimation({
 	onComplete,
 }: BalloonsAnimationProps) {
 	const [balloons, setBalloons] = useState<JSX.Element[]>([]);
+	const [animationCompleted, setAnimationCompleted] = useState(false);
 
+	console.log("BalloonsAnimation 렌더링됨:", {
+		revealed,
+		balloons: balloons.length,
+	});
+
+	// 애니메이션 완료 처리를 위한 함수
+	const completeAnimation = () => {
+		console.log("풍선 애니메이션 완료 함수 호출됨");
+		if (!animationCompleted) {
+			setAnimationCompleted(true);
+			if (onComplete) {
+				console.log("onComplete 콜백 호출");
+				onComplete();
+			}
+		}
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (!revealed) return;
+
+		// 이미 풍선이 생성되었으면 다시 생성하지 않음
+		if (balloons.length > 0) return;
+
+		console.log("풍선 생성 로직 실행");
 
 		// Generate 15-20 balloons
 		const count = 15 + Math.floor(Math.random() * 5);
@@ -108,14 +175,20 @@ export function BalloonsAnimation({
 		}
 
 		setBalloons(newBalloons);
+		console.log(`${newBalloons.length}개의 풍선 생성 완료`);
 
 		// Trigger callback after a delay
 		const timer = setTimeout(() => {
-			if (onComplete) onComplete();
+			console.log("풍선 애니메이션 타이머 실행됨");
+			completeAnimation();
 		}, 3000);
 
-		return () => clearTimeout(timer);
-	}, [revealed, gender, onComplete]);
+		return () => {
+			console.log("풍선 애니메이션 useEffect 정리 함수 실행");
+			clearTimeout(timer);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [revealed, gender, balloons.length]);
 
 	return (
 		<div className="relative h-full w-full overflow-hidden">
@@ -134,6 +207,13 @@ export function BalloonsAnimation({
 					initial={{ opacity: 0, y: 20 }}
 					animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
 					transition={{ duration: 0.5, delay: 1.5 }}
+					onAnimationComplete={() => {
+						if (revealed) {
+							// framer-motion 애니메이션 완료 이벤트를 추가로 활용
+							console.log("텍스트 애니메이션 완료됨");
+							setTimeout(completeAnimation, 1500);
+						}
+					}}
 				>
 					{gender === "boy" ? "왕자님 입니다!" : "공주님 입니다!"}
 				</motion.div>
