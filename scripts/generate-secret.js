@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * 안전한 JWT 비밀 키 생성 스크립트
+ * Generate a secure JWT secret key
  * 
- * 사용법:
+ * usage:
  * node scripts/generate-secret.js
  * 
- * 출력:
- * 새로 생성된 보안 비밀 키
+ * output:
+ * new generated secure secret key
  */
 
 const crypto = require('node:crypto');
