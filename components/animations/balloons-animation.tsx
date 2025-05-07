@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import type { Gender } from "@/lib/types";
 
@@ -126,6 +126,10 @@ export function BalloonsAnimation({
 }: BalloonsAnimationProps) {
 	const [balloons, setBalloons] = useState<JSX.Element[]>([]);
 	const [animationCompleted, setAnimationCompleted] = useState(false);
+	// 컴포넌트 마운트 상태 추적
+	const isMounted = useRef(true);
+	// 콜백 실행 상태 추적
+	const callbackExecuted = useRef(false);
 
 	console.log("BalloonsAnimation 렌더링됨:", {
 		revealed,
@@ -134,15 +138,29 @@ export function BalloonsAnimation({
 
 	// 애니메이션 완료 처리를 위한 함수
 	const completeAnimation = () => {
-		console.log("풍선 애니메이션 완료 함수 호출됨");
-		if (!animationCompleted) {
-			setAnimationCompleted(true);
-			if (onComplete) {
-				console.log("onComplete 콜백 호출");
-				onComplete();
-			}
+		console.log("풍선 애니메이션 완료 함수 호출됨", {
+			executed: callbackExecuted.current,
+		});
+		// 이미 실행되었거나 컴포넌트가 언마운트된 경우 중단
+		if (callbackExecuted.current || !isMounted.current) return;
+
+		callbackExecuted.current = true;
+		setAnimationCompleted(true);
+
+		if (onComplete) {
+			console.log("onComplete 콜백 호출");
+			onComplete();
 		}
 	};
+
+	// 컴포넌트 마운트/언마운트 관리
+	useEffect(() => {
+		isMounted.current = true;
+
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
@@ -181,13 +199,19 @@ export function BalloonsAnimation({
 		const timer = setTimeout(() => {
 			console.log("풍선 애니메이션 타이머 실행됨");
 			completeAnimation();
-		}, 3000);
+		}, 2500); // 2.5초로 조정 (텍스트 애니메이션과 일관성 유지)
+
+		// 콜백 실행을 보장하는 추가 타이머 (마지막 안전장치)
+		const guaranteeTimer = setTimeout(() => {
+			console.log("풍선 애니메이션 보장 타이머 실행됨");
+			completeAnimation();
+		}, 4000); // 4초 후 반드시 실행
 
 		return () => {
 			console.log("풍선 애니메이션 useEffect 정리 함수 실행");
 			clearTimeout(timer);
+			clearTimeout(guaranteeTimer);
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [revealed, gender, balloons.length]);
 
 	return (
