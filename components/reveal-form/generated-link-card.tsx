@@ -1,18 +1,68 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CopyIcon, CheckIcon, ExternalLinkIcon } from 'lucide-react';
+import { CopyIcon, CheckIcon, ExternalLinkIcon, AlertTriangleIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface GeneratedLinkCardProps {
   generatedLink: string;
 }
 
+// JWT 토큰에서 만료 날짜를 추출하는 함수
+function getExpirationDate(link: string): string | null {
+  try {
+    // URL에서 토큰 추출
+    const url = new URL(link);
+    const token = url.searchParams.get('token');
+    
+    if (!token) return null;
+    
+    // JWT 토큰을 디코딩 (서명 검증 없이 페이로드만 추출)
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const payload = JSON.parse(atob(parts[1]));
+    
+    // exp 클레임에서 만료 시간 추출 (Unix timestamp)
+    if (payload.exp) {
+      const expirationDate = new Date(payload.exp * 1000);
+      const dateStr = expirationDate.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).replace(/\. /g, '-').replace(/\.$/, '');
+      
+      const dayOfWeek = expirationDate.toLocaleDateString('ko-KR', {
+        weekday: 'short'
+      });
+      
+      return `${dateStr} (${dayOfWeek})`;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('토큰 만료 날짜 추출 오류:', error);
+    return null;
+  }
+}
+
+// JWT_EXPIRATION 값에서 일수 추출하는 함수
+function getDaysFromExpiration(expiration: string = '7d'): number {
+  const match = expiration.match(/(\d+)d/);
+  return match ? parseInt(match[1]) : 7;
+}
+
 export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
   const [copied, setCopied] = useState(false);
+  const [expirationDate, setExpirationDate] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const expDate = getExpirationDate(generatedLink);
+    setExpirationDate(expDate);
+  }, [generatedLink]);
 
   const copyToClipboard = async () => {
     try {
@@ -36,6 +86,9 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
       });
     }
   };
+
+  // 기본 만료 기간 (환경 변수에서 가져오거나 기본값 7일)
+  const defaultDays = getDaysFromExpiration(process.env.NEXT_PUBLIC_JWT_EXPIRATION || '7d');
 
   return (
     <div className="mt-6 p-4 border rounded-lg bg-muted">
@@ -66,6 +119,24 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
           <span className="ml-2">테스트</span>
         </Button>
       </div>
+      
+      {/* 만료 날짜 경고 메시지 */}
+      <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+        <div className="flex items-start gap-2">
+          <AlertTriangleIcon className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-amber-800">
+            <p className="font-medium">링크 만료 안내</p>
+            <p className="mt-1">
+              생성된 링크는 최대 <span className="font-semibold">{defaultDays}일간</span> 유지되며
+              {expirationDate && (
+                <span className="font-semibold"> {expirationDate}까지</span>
+              )} 사용 가능합니다.<br/>
+              만료된 링크로의 접근은 어려울 수 있으니 미리 공유해 주세요.
+            </p>
+          </div>
+        </div>
+      </div>
+      
       <p className="text-sm text-muted-foreground mt-2">
         이 링크를 공유하여 Gender Reveal을 가족 및 이웃들에게 전하세요.
       </p>

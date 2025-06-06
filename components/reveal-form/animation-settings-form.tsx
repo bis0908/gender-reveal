@@ -94,7 +94,6 @@ export function AnimationSettingsForm({
 				)}
 			/>
 
-			{/* <div className="flex justify-between pt-4"> */}
 			<div className="flex flex-col-reverse sm:flex-row sm:justify-between  gap-3 pt-4">
 				<Button
 					type="button"
