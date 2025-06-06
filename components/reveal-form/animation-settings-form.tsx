@@ -94,12 +94,13 @@ export function AnimationSettingsForm({
 				)}
 			/>
 
-			<div className="flex justify-between pt-4">
+			{/* <div className="flex justify-between pt-4"> */}
+			<div className="flex flex-col-reverse sm:flex-row sm:justify-between  gap-3 pt-4">
 				<Button
 					type="button"
 					variant="outline"
 					onClick={onPreviousStep}
-					className="flex items-center gap-2"
+					className="flex items-center gap-2 w-full sm:w-auto"
 				>
 					<ArrowLeftIcon className="h-4 w-4" />
 					이전

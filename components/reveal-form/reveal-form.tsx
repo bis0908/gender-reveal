@@ -255,7 +255,7 @@ export function RevealForm() {
 							<span className="inline-flex items-center justify-center bg-baby-pink/20 w-6 h-6 rounded-full text-sm font-bold">
 								2
 							</span>
-							애니메이션 & 공개
+							애니메이션
 						</TabsTrigger>
 					</TabsList>
 

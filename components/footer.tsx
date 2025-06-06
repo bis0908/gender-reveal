@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import { Heart, Mail } from "lucide-react";
 
 export function Footer() {
 	return (
@@ -60,15 +60,20 @@ export function Footer() {
 						</ul>
 					</div>
 
-					{/* <div>
-            <h4 className="font-medium text-sm mb-4">Resources</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/help" className="text-gray-600 hover:text-primary transition-colors">Help Center</Link></li>
-              <li><Link href="/privacy" className="text-gray-600 hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-gray-600 hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link href="/contact" className="text-gray-600 hover:text-primary transition-colors">Contact Us</Link></li>
-            </ul>
-          </div> */}
+					<div>
+						<h4 className="font-medium text-sm mb-4">Contact</h4>
+						<ul className="space-y-2 text-sm">
+							<li className="flex items-center gap-2">
+								<Mail size={14} className="text-gray-500" />
+								<a
+									href="mailto:harborcatsoft@gmail.com"
+									className="text-gray-600 hover:text-primary transition-colors"
+								>
+									harborcatsoft@gmail.com
+								</a>
+							</li>
+						</ul>
+					</div>
 				</div>
 
 				<div className="border-t border-gray-100 mt-8 pt-6 text-center text-sm text-gray-500">
