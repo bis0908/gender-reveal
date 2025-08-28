@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "generate-secret": "node scripts/generate-secret.js",
-    "test": "jest",
+    "test": "jest --no-watch",
     "test:watch": "jest --watch"
   },
   "dependencies": {

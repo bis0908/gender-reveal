@@ -34,6 +34,8 @@ const customJestConfig = {
   ],
   coverageDirectory: 'coverage',
   verbose: true,
+  // watch 모드 자동 실행 방지
+  watchman: false,
 };
 
 // createJestConfig는 Next.js 구성을 사용하여 설정을 내보냅니다.

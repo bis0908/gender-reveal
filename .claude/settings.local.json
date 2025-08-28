@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Read(c:\\Users\\wskong\\Pictures\\picpick/**)"
+      "Read(c:\\Users\\wskong\\Pictures\\picpick/**)",
+      "Bash(tasklist:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

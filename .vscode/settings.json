@@ -1,5 +1,8 @@
 {
   "cSpell.words": [
     "Kakao"
-  ]
+  ],
+  "jest.autoRun": "off",
+  "jest.showCoverageOnLoad": false,
+  "jest.autoRevealOutput": "off"
 }
