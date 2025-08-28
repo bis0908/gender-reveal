@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import type { Gender } from "@/lib/types";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface FireworksAnimationProps {
 	gender: Gender;
@@ -175,6 +176,7 @@ export function FireworksAnimation({
 	revealed,
 	onComplete,
 }: FireworksAnimationProps) {
+	const { t } = useTranslation();
 	const [fireworks, setFireworks] = useState<JSX.Element[]>([]);
 	const [rockets, setRockets] = useState<JSX.Element[]>([]);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -281,7 +283,7 @@ export function FireworksAnimation({
 					animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
 					transition={{ duration: 0.5, delay: 2 }}
 				>
-					{gender === "boy" ? "왕자님 입니다!" : "공주님 입니다!"}
+					{gender === "boy" ? t('animations.boyAnnouncement') : t('animations.girlAnnouncement')}
 				</motion.div>
 			</motion.div>
 		</div>

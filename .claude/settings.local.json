@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Read(c:\\Users\\wskong\\Pictures\\picpick/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

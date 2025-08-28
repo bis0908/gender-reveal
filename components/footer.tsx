@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Mail } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function Footer() {
+	const { t } = useTranslation();
+	
 	return (
 		<footer className="bg-white border-t border-gray-100 py-8 px-4 sm:px-6 mt-16">
 			<div className="container mx-auto">
@@ -16,28 +21,26 @@ export function Footer() {
 								height={40}
 							/>
 							<span className="font-bold text-xl bg-gradient-to-r from-baby-blue to-baby-pink bg-clip-text text-transparent">
-								Gender Reveal
+								{t('common.genderReveal')}
 							</span>
 						</div>
 						<p className="text-sm text-gray-600 max-w-xs">
-							소중한 사람들과 공유할 수 있는 우리 아기 Gender reveal 순간을
-							만드세요.
+							{t('footer.description')}
 						</p>
 						<div className="flex items-center gap-2 text-sm text-gray-500">
-							<Heart size={16} className="text-baby-pink" /> 예비 부모님들을
-							위해 정성을 담아 만들었습니다
+							<Heart size={16} className="text-baby-pink" /> {t('footer.madeWithLove')}
 						</div>
 					</div>
 
 					<div>
-						<h4 className="font-medium text-sm mb-4">Quick Links</h4>
+						<h4 className="font-medium text-sm mb-4">{t('footer.quickLinks')}</h4>
 						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
 									href="/"
 									className="text-gray-600 hover:text-primary transition-colors"
 								>
-									Home
+									{t('nav.home')}
 								</Link>
 							</li>
 							<li>
@@ -45,7 +48,7 @@ export function Footer() {
 									href="/create"
 									className="text-gray-600 hover:text-primary transition-colors"
 								>
-									Create Gender Reveal
+									{t('nav.createGenderReveal')}
 								</Link>
 							</li>
 							<li>
@@ -53,15 +56,15 @@ export function Footer() {
 									href="/examples"
 									className="text-gray-600 hover:text-primary transition-colors"
 								>
-									Examples
+									{t('nav.examples')}
 								</Link>
 							</li>
-							{/* <li><Link href="/about" className="text-gray-600 hover:text-primary transition-colors">About</Link></li> */}
+							{/* <li><Link href="/about" className="text-gray-600 hover:text-primary transition-colors">{t('nav.about')}</Link></li> */}
 						</ul>
 					</div>
 
 					<div>
-						<h4 className="font-medium text-sm mb-4">Contact</h4>
+						<h4 className="font-medium text-sm mb-4">{t('footer.contact')}</h4>
 						<ul className="space-y-2 text-sm">
 							<li className="flex items-center gap-2">
 								<Mail size={14} className="text-gray-500" />
@@ -78,7 +81,7 @@ export function Footer() {
 
 				<div className="border-t border-gray-100 mt-8 pt-6 text-center text-sm text-gray-500">
 					<p>
-						© {new Date().getFullYear()} HarborcatSoft. All rights reserved.
+						© {new Date().getFullYear()} {t('footer.copyright')}
 					</p>
 				</div>
 			</div>

@@ -19,6 +19,7 @@ import {
   EmailIcon
 } from 'react-share';
 import type { Gender, BabyInfo } from '@/lib/types';
+import { useTranslation } from '@/lib/i18n/context';
 
 interface SocialShareProps {
   url: string;
@@ -58,6 +59,7 @@ export function SocialShare({
   gender,
   multipleBabies
 }: SocialShareProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [kakaoLoaded, setKakaoLoaded] = useState(false);
   
@@ -65,13 +67,22 @@ export function SocialShare({
   const shareText = useCallback(() => {
     if (multipleBabies && multipleBabies.length > 0) {
       const babiesCount = multipleBabies.length;
-      const babiesText = babiesCount > 1 ? `${babiesCount}명의 아기들` : "아기";
+      const babiesText = babiesCount > 1 
+        ? t('socialShare.messages.babiesCount', { count: babiesCount.toString() })
+        : t('socialShare.messages.singleBabyText');
       
-      return `${motherName}와(과) ${fatherName}의 Gender Reveal 파티에 초대합니다! ${babiesText}의 성별을 함께 확인해보세요! 🎉`;
+      return t('socialShare.messages.multipleBabies', { 
+        motherName, 
+        fatherName, 
+        babiesText 
+      });
     }
     
-    return `${motherName}와(과) ${fatherName}의 Gender Reveal 파티에 초대합니다! 아기의 성별을 함께 확인해보세요! 🎉`;
-  }, [motherName, fatherName, multipleBabies])();
+    return t('socialShare.messages.singleBaby', { 
+      motherName, 
+      fatherName 
+    });
+  }, [motherName, fatherName, multipleBabies, t])();
   
   // 카카오톡 SDK 초기화
   useEffect(() => {
@@ -86,7 +97,6 @@ export function SocialShare({
       script.onload = () => {
         // 스크립트 로드 후 초기화
         if (window.Kakao && !window.Kakao.isInitialized()) {
-          // 개발 환경에서는 임시 키 사용, 실제 환경에서는 환경 변수에서 가져와야 함
           window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY || '');
           setKakaoLoaded(true);
         }
@@ -94,7 +104,7 @@ export function SocialShare({
       document.head.appendChild(script);
     } else if (window.Kakao && !window.Kakao.isInitialized()) {
       // 이미 스크립트가 있지만 초기화되지 않은 경우
-      window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JS_KEY || '');
+      window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY || '');
       setKakaoLoaded(true);
     } else if (window.Kakao) {
       // 이미 초기화된 경우
@@ -149,14 +159,14 @@ export function SocialShare({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold mb-3">Gender Reveal 공유하기</h3>
+        <h3 className="text-xl font-semibold mb-3">{t('socialShare.title')}</h3>
         <p className="text-gray-600 mb-4">
-          소중한 소식을 가족과 친구들에게 공유해보세요
+          {t('socialShare.description')}
         </p>
       </div>
       
       <div className="p-4 border rounded-lg bg-muted">
-        <Label htmlFor="share-link" className="block mb-2">링크 복사</Label>
+        <Label htmlFor="share-link" className="block mb-2">{t('socialShare.copyLink')}</Label>
         <div className="flex gap-2">
           <Input 
             id="share-link"
@@ -172,13 +182,13 @@ export function SocialShare({
             className="flex-shrink-0 gap-1"
           >
             {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
-            <span>{copied ? "복사됨" : "복사"}</span>
+            <span>{copied ? t('socialShare.copied') : t('socialShare.copy')}</span>
           </Button>
         </div>
       </div>
       
       <div>
-        <Label className="block mb-3">소셜 미디어에 공유하기</Label>
+        <Label className="block mb-3">{t('socialShare.shareOnSocial')}</Label>
         <div className="flex flex-wrap gap-3">
           {hasNativeShare && (
             <Button
@@ -188,7 +198,7 @@ export function SocialShare({
               className="gap-2"
             >
               <Share2Icon className="h-4 w-4" />
-              공유하기
+              {t('socialShare.nativeShare')}
             </Button>
           )}
           
@@ -199,41 +209,41 @@ export function SocialShare({
                 <path fillRule="evenodd" clipRule="evenodd" d="M128 36C74.98 36 32 68.05 32 107.85C32 134.58 51.14 158.37 79.86 170.96L70.51 204.23C69.16 209.15 74.77 213.03 79.06 210.11L119.95 182.19C122.6 182.46 125.28 182.6 128 182.6C181.02 182.6 224 150.55 224 110.75C224 71.05 181.02 36 128 36Z" fill="#191919" fillOpacity="0.9"/>
               </svg>
             </div>
-            <span>카카오톡</span>
+            <span>{t('socialShare.platforms.kakaotalk')}</span>
           </div>
           
           <TwitterShareButton url={url} title={shareText}>
             <div className="flex items-center gap-2 border rounded-md px-3 py-2 hover:bg-muted">
               <TwitterIcon size={24} round />
-              <span>트위터</span>
+              <span>{t('socialShare.platforms.twitter')}</span>
             </div>
           </TwitterShareButton>
           
           <FacebookShareButton url={url} hashtag="#GenderReveal">
             <div className="flex items-center gap-2 border rounded-md px-3 py-2 hover:bg-muted">
               <FacebookIcon size={24} round />
-              <span>페이스북</span>
+              <span>{t('socialShare.platforms.facebook')}</span>
             </div>
           </FacebookShareButton>
           
           <WhatsappShareButton url={url} title={shareText}>
             <div className="flex items-center gap-2 border rounded-md px-3 py-2 hover:bg-muted">
               <WhatsappIcon size={24} round />
-              <span>왓츠앱</span>
+              <span>{t('socialShare.platforms.whatsapp')}</span>
             </div>
           </WhatsappShareButton>
           
           <LineShareButton url={url} title={shareText}>
             <div className="flex items-center gap-2 border rounded-md px-3 py-2 hover:bg-muted">
               <LineIcon size={24} round />
-              <span>라인</span>
+              <span>{t('socialShare.platforms.line')}</span>
             </div>
           </LineShareButton>
           
           <EmailShareButton url={url} subject={title} body={`${shareText}\n\n${url}`}>
             <div className="flex items-center gap-2 border rounded-md px-3 py-2 hover:bg-muted">
               <EmailIcon size={24} round />
-              <span>이메일</span>
+              <span>{t('socialShare.platforms.email')}</span>
             </div>
           </EmailShareButton>
         </div>

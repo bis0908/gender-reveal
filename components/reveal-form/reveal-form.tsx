@@ -11,9 +11,11 @@ import { FamilyDetailsForm } from "@/components/reveal-form/family-details-form"
 import { AnimationSettingsForm } from "@/components/reveal-form/animation-settings-form";
 import { GeneratedLinkCard } from "@/components/reveal-form/generated-link-card";
 import { formSchema, type FormValues } from "@/lib/schemas/reveal-form-schema";
+import { useTranslation } from "@/lib/i18n/context";
 
 export function RevealForm() {
 	const { toast } = useToast();
+	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const [generatedLink, setGeneratedLink] = useState<string | null>(null);
 	const [activeTab, setActiveTab] = useState<string>("details");
@@ -81,7 +83,7 @@ export function RevealForm() {
 			const responseText = await response.text();
 
 			if (!response.ok) {
-				let errorMessage = "토큰 생성에 실패했습니다.";
+				let errorMessage = t('errors.tokenGenerationFailed');
 				try {
 					const errorData = JSON.parse(responseText);
 					if (errorData.error) {
@@ -95,7 +97,7 @@ export function RevealForm() {
 
 			// 응답이 비어있는지 확인
 			if (!responseText || responseText.trim() === "") {
-				throw new Error("서버에서 빈 응답이 반환되었습니다.");
+				throw new Error(t('errors.emptyResponse'));
 			}
 
 			// JSON 응답 파싱
@@ -109,11 +111,11 @@ export function RevealForm() {
 					"응답 텍스트:",
 					responseText,
 				);
-				throw new Error("서버 응답을 파싱할 수 없습니다.");
+				throw new Error(t('errors.parsingError'));
 			}
 
 			if (!tokenData || !tokenData.token) {
-				throw new Error("토큰 정보가 올바르지 않습니다.");
+				throw new Error(t('errors.invalidToken'));
 			}
 
 			const token = tokenData.token;
@@ -125,18 +127,18 @@ export function RevealForm() {
 			setGeneratedLink(revealUrl);
 
 			toast({
-				title: "링크가 생성되었습니다!",
-				description: "링크를 복사하여 공유하세요.",
+				title: t('success.linkGenerated'),
+				description: t('success.linkGeneratedDescription'),
 				variant: "default",
 			});
 		} catch (error) {
 			console.error("[ERROR] 토큰 생성 과정 오류:", error);
 			toast({
-				title: "오류",
+				title: t('common.error'),
 				description:
 					error instanceof Error
 						? error.message
-						: "Gender Reveal 생성에 실패했습니다. 다시 시도해주세요.",
+						: t('errors.serverError'),
 				variant: "destructive",
 			});
 			console.error(error);
@@ -175,13 +177,13 @@ export function RevealForm() {
 		const errors: { [key: string]: boolean } = {};
 
 		if (!motherName || motherName.trim() === "") {
-			form.setError("motherName", { message: "엄마 이름을 입력해주세요" });
+			form.setError("motherName", { message: t('errors.motherNameRequired') });
 			errors.motherName = true;
 			isValid = false;
 		}
 
 		if (!fatherName || fatherName.trim() === "") {
-			form.setError("fatherName", { message: "아빠 이름을 입력해주세요" });
+			form.setError("fatherName", { message: t('errors.fatherNameRequired') });
 			errors.fatherName = true;
 			isValid = false;
 		}
@@ -190,7 +192,7 @@ export function RevealForm() {
 		if (!isMultiple) {
 			const babyName = form.getValues("babyName");
 			if (!babyName || babyName.trim() === "") {
-				form.setError("babyName", { message: "태명을 입력해주세요" });
+				form.setError("babyName", { message: t('errors.babyNameRequired') });
 				errors.babyName = true;
 				isValid = false;
 			}
@@ -202,7 +204,7 @@ export function RevealForm() {
 				babiesInfo.some((baby) => !baby.name || baby.name.trim() === "")
 			) {
 				form.setError("babiesInfo", {
-					message: "모든 아기의 태명을 입력해주세요",
+					message: t('errors.allBabyNamesRequired'),
 				});
 				errors.babiesInfo = true;
 				isValid = false;
@@ -211,8 +213,8 @@ export function RevealForm() {
 
 		if (!isValid) {
 			toast({
-				title: "입력 값을 확인해주세요",
-				description: "필수 입력 항목을 모두 입력해주세요.",
+				title: t('errors.validationError'),
+				description: t('errors.required'),
 				variant: "destructive",
 			});
 			return false;
@@ -246,7 +248,7 @@ export function RevealForm() {
 							<span className="inline-flex items-center justify-center bg-baby-blue/20 w-6 h-6 rounded-full text-sm font-bold">
 								1
 							</span>
-							가족 정보
+							{t('form.familyInfo')}
 						</TabsTrigger>
 						<TabsTrigger
 							value="animation"
@@ -255,7 +257,7 @@ export function RevealForm() {
 							<span className="inline-flex items-center justify-center bg-baby-pink/20 w-6 h-6 rounded-full text-sm font-bold">
 								2
 							</span>
-							애니메이션
+							{t('form.animationSettings')}
 						</TabsTrigger>
 					</TabsList>
 

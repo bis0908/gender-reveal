@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import type { Gender } from "@/lib/types";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface BalloonsAnimationProps {
 	gender: Gender;
@@ -124,6 +125,7 @@ export function BalloonsAnimation({
 	revealed,
 	onComplete,
 }: BalloonsAnimationProps) {
+	const { t } = useTranslation();
 	const [balloons, setBalloons] = useState<JSX.Element[]>([]);
 	const [animationCompleted, setAnimationCompleted] = useState(false);
 	// 컴포넌트 마운트 상태 추적
@@ -224,7 +226,7 @@ export function BalloonsAnimation({
 						}
 					}}
 				>
-					{gender === "boy" ? "왕자님 입니다!" : "공주님 입니다!"}
+					{gender === "boy" ? t('animations.boyAnnouncement') : t('animations.girlAnnouncement')}
 				</motion.div>
 			</motion.div>
 		</div>

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { LanguageProvider } from "@/lib/i18n/context";
 import Script from "next/script";
 
 const montserrat = Montserrat({
@@ -86,18 +87,20 @@ export default function RootLayout({
 					strategy="afterInteractive"
 				/>
 			</head>
-			<body className={`${montserrat.variable} font-sans antialiased`}>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="light"
-					enableSystem={false}
-					disableTransitionOnChange
-				>
-					{children}
-					<Analytics />
-					<SpeedInsights />
-					<Toaster />
-				</ThemeProvider>
+			<body className={`${montserrat.variable} font-sans antialiased`} suppressHydrationWarning>
+				<LanguageProvider>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="light"
+						enableSystem={false}
+						disableTransitionOnChange
+					>
+						{children}
+						<Analytics />
+						<SpeedInsights />
+						<Toaster />
+					</ThemeProvider>
+				</LanguageProvider>
 			</body>
 		</html>
 	);

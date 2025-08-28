@@ -1,3 +1,5 @@
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Baby, Sparkles, Share2, Heart } from 'lucide-react';
@@ -5,8 +7,23 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { useTranslation } from '@/lib/i18n/context';
 
 export default function Home() {
+  const { t, isInitialized, isLoading } = useTranslation();
+  
+  // 번역이 초기화되지 않았거나 로딩 중일 때 로딩 UI 표시
+  if (!isInitialized || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-baby-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
@@ -20,24 +37,24 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-                  설레는 
+                  {t('home.heroTitle')}{' '}
                   <span className="block bg-gradient-to-r from-baby-blue to-baby-pink bg-clip-text text-transparent">
-                    Gender Reveal
+                    {t('home.heroSubtitle')}
                   </span> 
-                  소중한 사람들과 함께
+                  {t('home.heroSubtitleLine2')}
                 </h1>
                 
                 <p className="text-lg text-gray-600 max-w-md">
-                  세상 어디에서나 친구와 가족들에게 공유할 수 있는 아름다운 온라인 Gender reveal 순간을 만들어보세요.
+                  {t('home.heroDescription')}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Button size="xl" asChild>
-                    <Link href="/create">Gender Reveal 만들기</Link>
+                    <Link href="/create">{t('home.createButton')}</Link>
                   </Button>
                   
                   <Button variant="outline" size="xl" asChild>
-                    <Link href="/examples">예시 보기</Link>
+                    <Link href="/examples">{t('home.examplesButton')}</Link>
                   </Button>
                 </div>
               </div>
@@ -59,7 +76,7 @@ export default function Home() {
         <section className="py-16 px-4 sm:px-6 bg-gray-50">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">이용 방법</h2>
+              <h2 className="text-3xl font-bold mb-4">{t('home.howToUseTitle')}</h2>
               {/* <p className="text-gray-600 max-w-2xl mx-auto">
                 저희 플랫폼을 통해 몇 가지 간단한 단계로 특별한 순간을 쉽게 만들고 공유할 수 있습니다.
               </p> */}
@@ -71,9 +88,9 @@ export default function Home() {
                   <div className="mb-5 h-12 w-12 rounded-full bg-baby-blue/20 flex items-center justify-center">
                     <Baby size={24} className="text-baby-blue-dark" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Gender Reveal 만들기</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('home.featureCreateTitle')}</h3>
                   <p className="text-gray-600">
-                    엄마 이름, 아빠 이름, 태명, 성별 등의 정보를 입력하세요.
+                    {t('home.featureCreateDescription')}
                   </p>
                 </CardContent>
               </Card>
@@ -83,9 +100,9 @@ export default function Home() {
                   <div className="mb-5 h-12 w-12 rounded-full bg-baby-pink/20 flex items-center justify-center">
                     <Sparkles size={24} className="text-baby-pink-dark" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">애니메이션 선택</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('home.featureAnimationTitle')}</h3>
                   <p className="text-gray-600">
-                    다양하고 아름다운 Gender Reveal 애니메이션 중 선택하고 카운트다운을 추가해보세요.
+                    {t('home.featureAnimationDescription')}
                   </p>
                 </CardContent>
               </Card>
@@ -95,9 +112,9 @@ export default function Home() {
                   <div className="mb-5 h-12 w-12 rounded-full bg-baby-mint/20 flex items-center justify-center">
                     <Share2 size={24} className="text-baby-mint-dark" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">가족과 공유하기</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('home.featureShareTitle')}</h3>
                   <p className="text-gray-600">
-                    친구와 가족들에게 SNS로 공유할 수 있는 안전한 링크를 받으세요.
+                    {t('home.featureShareDescription')}
                   </p>
                 </CardContent>
               </Card>
@@ -169,14 +186,14 @@ export default function Home() {
           
           <div className="container mx-auto max-w-4xl relative z-10">
             <div className="text-center space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-bold">특별한 순간을 공유할 준비가 되셨나요?</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold">{t('home.ctaTitle')}</h2>
               <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                몇 분 안에 Gender Reveal을 만들고 전 세계 친구와 가족들과 함께 설레는 순간을 공유해보세요.
+                {t('home.ctaDescription')}
               </p>
               
               <div className="pt-4">
                 <Button size="xl" asChild>
-                  <Link href="/create">Gender Reveal 만들기</Link>
+                  <Link href="/create">{t('home.createButton')}</Link>
                 </Button>
               </div>
             </div>

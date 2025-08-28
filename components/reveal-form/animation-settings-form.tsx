@@ -13,6 +13,7 @@ import { AnimationSelection } from "@/components/animation-selection";
 import { ArrowLeftIcon } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 import type { FormValues } from "@/lib/schemas/reveal-form-schema";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface AnimationSettingsFormProps {
 	form: UseFormReturn<FormValues>;
@@ -27,6 +28,7 @@ export function AnimationSettingsForm({
 	loading,
 	onSubmit,
 }: AnimationSettingsFormProps) {
+	const { t } = useTranslation();
 	const handleSubmit = async () => {
 		try {
 			// 폼 검증 상태 확인
@@ -49,10 +51,10 @@ export function AnimationSettingsForm({
 		<div className="space-y-6">
 			<div className="text-center mb-4">
 				<h3 className="text-lg font-semibold text-gray-800">
-					2단계: 애니메이션 설정
+					{t('form.step2Title')}
 				</h3>
 				<p className="text-sm text-gray-500">
-					Gender Reveal에 사용할 애니메이션을 선택해주세요
+					{t('form.step2Description')}
 				</p>
 			</div>
 			<FormField
@@ -60,7 +62,7 @@ export function AnimationSettingsForm({
 				name="animationType"
 				render={({ field }) => (
 					<FormItem>
-						<FormLabel>공개 애니메이션</FormLabel>
+						<FormLabel>{t('form.animationType')}</FormLabel>
 						<FormControl>
 							<AnimationSelection
 								value={field.value}
@@ -77,7 +79,7 @@ export function AnimationSettingsForm({
 				name="countdownTime"
 				render={({ field }) => (
 					<FormItem className="mt-6">
-						<FormLabel>카운트다운 시간 (초)</FormLabel>
+						<FormLabel>{t('form.countdownTime')}</FormLabel>
 						<FormControl>
 							<Input
 								type="number"
@@ -102,7 +104,7 @@ export function AnimationSettingsForm({
 					className="flex items-center gap-2 w-full sm:w-auto"
 				>
 					<ArrowLeftIcon className="h-4 w-4" />
-					이전
+					{t('common.previous')}
 				</Button>
 
 				<Button
@@ -112,7 +114,7 @@ export function AnimationSettingsForm({
 					className="w-full sm:w-auto"
 					onClick={handleSubmit}
 				>
-					{loading ? "생성 중..." : "Gender reveal 만들기"}
+					{loading ? t('form.creating') : t('form.createGenderReveal')}
 				</Button>
 			</div>
 		</div>

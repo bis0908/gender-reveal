@@ -1,9 +1,26 @@
+"use client";
+
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { RevealForm } from '@/components/reveal-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from '@/lib/i18n/context';
 
 export default function CreatePage() {
+  const { t, isInitialized, isLoading } = useTranslation();
+  
+  // 번역이 초기화되지 않았거나 로딩 중일 때 로딩 UI 표시
+  if (!isInitialized || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-baby-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
@@ -11,20 +28,23 @@ export default function CreatePage() {
       <div className="flex-1 container mx-auto max-w-4xl py-10 px-4 sm:px-6">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-baby-blue-dark to-baby-pink-dark bg-clip-text text-transparent">
-            Gender Reveal 만들기
+            {t('create.title')}
           </h1>
           <p className="text-gray-600 mt-2">
-            아래 정보를 입력하여 <span className="font-medium text-baby-blue">아들</span> 또는 <span className="font-medium text-baby-pink">딸</span> 소식을 특별하게 알려보세요
+            {t('create.subtitle', { 
+              boyText: t('gender.boy'),
+              girlText: t('gender.girl')
+            })}
           </p>
         </div>
         
         <Card className="border-2 border-baby-blue-light/50 shadow-lg overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-baby-blue-light/10 to-baby-pink-light/10">
-            <CardTitle className="text-xl font-semibold">Gender Reveal 정보</CardTitle>
+            <CardTitle className="text-xl font-semibold">{t('create.cardTitle')}</CardTitle>
             <CardDescription>
-              가족 정보를 입력하고 애니메이션을 선택하세요. 쌍둥이, 세쌍둥이 등 다태아 정보도 입력할 수 있습니다.
+              {t('create.cardDescription')}
             </CardDescription>
-              <p className="text-xs text-red-500">입력된 정보는 수집하거나 저장하지 않습니다.</p>
+              <p className="text-xs text-red-500">{t('create.privacyNotice')}</p>
           </CardHeader>
           <CardContent>
             <RevealForm />

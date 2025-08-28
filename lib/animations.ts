@@ -1,38 +1,51 @@
 import type { Animation } from './types';
+import type { Language } from './i18n/types';
+import ko from './i18n/locales/ko.json';
+import en from './i18n/locales/en.json';
 
-export const animationOptions: Animation[] = [
-  {
-    id: "confetti",
-    name: "색종이",
-    description: "성별을 드러내는 알록달록한 색종이 폭발",
-    thumbnail: "/images/confetti-thumb.jpg"
-  },
-  {
-    id: "balloons",
-    name: "풍선",
-    description: "화면을 가득 채우는 파란색 또는 분홍색 풍선들",
-    thumbnail: "/images/balloons-thumb.jpg"
-  },
-  {
-    id: "fireworks",
-    name: "불꽃놀이",
-    description: "성별 색상으로 빛나는 화려한 불꽃놀이",
-    thumbnail: "/images/fireworks-thumb.jpg"
-  },
-  {
-    id: "falling",
-    name: "떨어지는 아이템",
-    description: "위에서 떨어지는 파란색 또는 분홍색 아기 용품들",
-    thumbnail: "/images/falling-thumb.jpg"
-  },
-  {
-    id: "reveal",
-    name: "심플 공개",
-    description: "단순하고 우아한 공개 애니메이션",
-    thumbnail: "/images/reveal-thumb.jpg"
-  }
-];
+const translations = { ko, en };
 
-export function getAnimationByType(type: string): Animation {
-  return animationOptions.find(anim => anim.id === type) || animationOptions[0];
+export function getAnimationOptions(language: Language = 'ko'): Animation[] {
+  const t = translations[language];
+  
+  return [
+    {
+      id: "confetti",
+      name: t.animations.confettiName,
+      description: t.animations.confettiDesc,
+      thumbnail: "/images/confetti-thumb.jpg"
+    },
+    {
+      id: "balloons",
+      name: t.animations.balloonsName,
+      description: t.animations.balloonsDesc,
+      thumbnail: "/images/balloons-thumb.jpg"
+    },
+    {
+      id: "fireworks",
+      name: t.animations.fireworksName,
+      description: t.animations.fireworksDesc,
+      thumbnail: "/images/fireworks-thumb.jpg"
+    },
+    {
+      id: "falling",
+      name: t.animations.fallingName,
+      description: t.animations.fallingDesc,
+      thumbnail: "/images/falling-thumb.jpg"
+    },
+    {
+      id: "reveal",
+      name: t.animations.revealName,
+      description: t.animations.revealDesc,
+      thumbnail: "/images/reveal-thumb.jpg"
+    }
+  ];
+}
+
+// 하위 호환성을 위한 기본 옵션 (한국어)
+export const animationOptions: Animation[] = getAnimationOptions('ko');
+
+export function getAnimationByType(type: string, language: Language = 'ko'): Animation {
+  const options = getAnimationOptions(language);
+  return options.find(anim => anim.id === type) || options[0];
 }

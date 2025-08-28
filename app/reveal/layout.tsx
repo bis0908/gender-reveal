@@ -1,30 +1,56 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import ko from '@/lib/i18n/locales/ko.json';
+import en from '@/lib/i18n/locales/en.json';
 
-export const metadata: Metadata = {
-  title: 'Gender Reveal - 아기의 성별을 확인하세요',
-  description: '특별한 순간을 함께 나누고 아기의 성별을 확인해보세요. 진정한 서프라이즈를 경험하세요!',
-  openGraph: {
-    type: 'website',
-    locale: 'ko_KR',
-    title: 'Gender Reveal - 아기의 성별을 확인하세요',
-    description: '특별한 순간을 함께 나누고 아기의 성별을 확인해보세요. 진정한 서프라이즈를 경험하세요!',
-    siteName: 'Gender Reveal',
-    images: [
-      {
-        url: '/images/gender_reveal_og.png',
-        width: 1200,
-        height: 630,
-        alt: 'Gender Reveal 페이지',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Gender Reveal - 아기의 성별을 확인하세요',
-    description: '특별한 순간을 함께 나누고 아기의 성별을 확인해보세요. 진정한 서프라이즈를 경험하세요!',
-    images: ['/images/gender_reveal_og.png'],
-  },
-};
+const translations = { ko, en };
+
+async function getLanguageFromHeaders(): Promise<'ko' | 'en'> {
+  const headersList = await headers();
+  const acceptLanguage = headersList.get('accept-language') || '';
+  
+  // Check if English is preferred
+  if (acceptLanguage.includes('en') && !acceptLanguage.startsWith('ko')) {
+    return 'en';
+  }
+  
+  return 'ko'; // Default to Korean
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const language = await getLanguageFromHeaders();
+  const t = translations[language];
+
+  const title = t.reveal.metaTitle;
+  const description = t.reveal.metaDescription;
+  const locale = language === 'ko' ? 'ko_KR' : 'en_US';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      type: 'website',
+      locale,
+      title,
+      description,
+      siteName: 'Gender Reveal',
+      images: [
+        {
+          url: '/images/gender_reveal_og.png',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/images/gender_reveal_og.png'],
+    },
+  };
+}
 
 export default function RevealLayout({
   children,

@@ -10,12 +10,14 @@ import { PlusCircleIcon, TrashIcon } from 'lucide-react';
 import type { UseFormReturn } from 'react-hook-form';
 import type { FormValues } from '@/lib/schemas/reveal-form-schema';
 import { useFieldArray } from 'react-hook-form';
+import { useTranslation } from '@/lib/i18n/context';
 
 interface MultipleBabiesFormProps {
   form: UseFormReturn<FormValues>;
 }
 
 export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
+  const { t } = useTranslation();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "babiesInfo"
@@ -30,9 +32,9 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <FormLabel className="text-base">아기 정보</FormLabel>
+          <FormLabel className="text-base">{t('form.babyInfo')}</FormLabel>
           <FormDescription className="mt-1">
-            각 아기의 태명과 성별을 입력해주세요. 모든 아기의 태명을 필수로 입력해야 합니다.
+            {t('form.babyInfoDescription')}
           </FormDescription>
         </div>
         <Button
@@ -43,7 +45,7 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
           className="flex items-center gap-1"
         >
           <PlusCircleIcon className="h-4 w-4" />
-          아기 추가
+          {t('form.addBaby')}
         </Button>
       </div>
       
@@ -51,7 +53,7 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
         <Card key={field.id} className="overflow-hidden">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-medium">아기 {index + 1}</h4>
+              <h4 className="font-medium">{t('form.babyNumber', { number: (index + 1).toString() })}</h4>
               {index > 1 && (
                 <Button
                   type="button"
@@ -61,7 +63,7 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
                   className="h-8 w-8 p-0"
                 >
                   <TrashIcon className="h-4 w-4" />
-                  <span className="sr-only">삭제</span>
+                  <span className="sr-only">{t('form.removeBaby')}</span>
                 </Button>
               )}
             </div>
@@ -72,12 +74,12 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
                 name={`babiesInfo.${index}.name`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>태명</FormLabel>
+                    <FormLabel>{t('form.babyName')}</FormLabel>
                     <FormDescription className="text-xs mt-0 mb-2">
-                      아기의 태명이나 별명을 입력해주세요
+                      {t('form.babyNameDescription')}
                     </FormDescription>
                     <FormControl>
-                      <Input placeholder="예: 콩이, 팥이, 새콩이" {...field} />
+                      <Input placeholder={t('form.babyNamePlaceholderExample')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -89,7 +91,7 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
                 name={`babiesInfo.${index}.gender`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>성별</FormLabel>
+                    <FormLabel>{t('form.genderLabel')}</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
@@ -98,11 +100,11 @@ export function MultipleBabiesForm({ form }: MultipleBabiesFormProps) {
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="boy" id={`boy-${index}`} />
-                          <Label htmlFor={`boy-${index}`} className="text-baby-blue-dark font-medium">남자아이</Label>
+                          <Label htmlFor={`boy-${index}`} className="text-baby-blue-dark font-medium">{t('gender.boy')}</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="girl" id={`girl-${index}`} />
-                          <Label htmlFor={`girl-${index}`} className="text-baby-pink-dark font-medium">여자아이</Label>
+                          <Label htmlFor={`girl-${index}`} className="text-baby-pink-dark font-medium">{t('gender.girl')}</Label>
                         </div>
                       </RadioGroup>
                     </FormControl>

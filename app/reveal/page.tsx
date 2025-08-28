@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import type { RevealData, Gender } from "@/lib/types";
-import { demoExamples } from "./constants";
+import { getDemoExamples } from "./constants";
+import { useTranslation } from "@/lib/i18n/context";
 import { LoadingState } from "./components/LoadingState";
 import { ErrorState } from "./components/ErrorState";
 import { RevealIntro } from "./components/RevealIntro";
@@ -14,9 +15,11 @@ import { RevealResults } from "./components/RevealResults";
 
 // 검색 파라미터를 처리하는 별도의 클라이언트 컴포넌트
 function RevealContent() {
+	const { t, language } = useTranslation();
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
 	const demoId = searchParams.get("demo");
+	const demoExamples = getDemoExamples(language);
 
 	const [revealData, setRevealData] = useState<RevealData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -77,9 +80,7 @@ function RevealContent() {
 
 		// 일반 모드인 경우
 		if (!token) {
-			setError(
-				"토큰이 유효하지 않거나 누락되었습니다. URL을 확인하고 다시 시도해주세요.",
-			);
+			setError(t('reveal.error.invalidToken'));
 			setIsLoading(false);
 			return;
 		}
@@ -97,16 +98,14 @@ function RevealContent() {
 
 				if (!response.ok) {
 					const errorData = await response.json();
-					setError(errorData.error || "공개 데이터를 검증할 수 없습니다.");
+					setError(errorData.error || t('reveal.error.verificationFailed'));
 					setIsLoading(false);
 					return;
 				}
 
 				const { data } = await response.json();
 				if (!data) {
-					setError(
-						"공개 데이터를 해독할 수 없습니다. 링크가 만료되었거나 수정되었을 수 있습니다.",
-					);
+					setError(t('reveal.error.decodeFailed'));
 					setIsLoading(false);
 					return;
 				}
@@ -114,7 +113,7 @@ function RevealContent() {
 				setRevealData(data as RevealData);
 				setIsLoading(false);
 			} catch (err) {
-				setError("공개 데이터를 로드하는 동안 오류가 발생했습니다.");
+				setError(t('reveal.error.loadFailed'));
 				console.error(err);
 				setIsLoading(false);
 			}

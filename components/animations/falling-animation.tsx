@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Gender } from "@/lib/types";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface FallingAnimationProps {
 	gender: Gender;
@@ -164,6 +165,7 @@ export function FallingAnimation({
 	revealed,
 	onComplete,
 }: FallingAnimationProps) {
+	const { t } = useTranslation();
 	const [items, setItems] = useState<JSX.Element[]>([]);
 	const animationStarted = useRef(false);
 
@@ -223,7 +225,7 @@ export function FallingAnimation({
 					animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
 					transition={{ duration: 0.5, delay: 1.5 }}
 				>
-					{gender === "boy" ? "왕자님 입니다!" : "공주님 입니다!"}
+					{gender === "boy" ? t('animations.boyAnnouncement') : t('animations.girlAnnouncement')}
 				</motion.div>
 			</motion.div>
 		</div>

@@ -6,7 +6,8 @@ import { RadioGroup } from "@radix-ui/react-radio-group";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import type { AnimationType } from "@/lib/types";
-import { animationOptions } from "@/lib/animations";
+import { getAnimationOptions } from "@/lib/animations";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface AnimationSelectionProps {
 	value: AnimationType;
@@ -17,6 +18,9 @@ export function AnimationSelection({
 	value,
 	onChange,
 }: AnimationSelectionProps) {
+	const { language } = useTranslation();
+	const animationOptions = getAnimationOptions(language);
+	
 	const handleChange = (newValue: string) => {
 		onChange(newValue as AnimationType);
 	};

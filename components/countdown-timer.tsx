@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/lib/i18n/context';
 
 interface CountdownTimerProps {
   seconds: number;
@@ -11,6 +12,7 @@ interface CountdownTimerProps {
 }
 
 export function CountdownTimer({ seconds, onComplete, gender, babyName }: CountdownTimerProps) {
+  const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(seconds);
   const [isActive, setIsActive] = useState(true);
 
@@ -38,7 +40,9 @@ export function CountdownTimer({ seconds, onComplete, gender, babyName }: Countd
         transition={{ duration: 0.5 }}
         className="text-2xl sm:text-3xl font-bold text-baby-neutral mb-8 text-center"
       >
-        🎊 우리 {babyName || '아기'}의 성별을 공개합니다 🎉
+        {t('countdown.revealMessage', { 
+          babyName: babyName || t('countdown.defaultBabyName') 
+        })}
       </motion.div>
       
       <motion.div

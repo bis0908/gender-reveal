@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ReactConfetti from "react-confetti";
 import { motion } from "framer-motion";
 import type { Gender } from "@/lib/types";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface ConfettiAnimationProps {
 	gender: Gender;
@@ -16,6 +17,7 @@ export function ConfettiAnimation({
 	revealed,
 	onComplete,
 }: ConfettiAnimationProps) {
+	const { t } = useTranslation();
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 	const [showConfetti, setShowConfetti] = useState(false);
 
@@ -79,7 +81,7 @@ export function ConfettiAnimation({
 					animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
 					transition={{ duration: 0.5, delay: 1 }}
 				>
-					{gender === "boy" ? "왕자님 입니다!" : "공주님 입니다!"}
+					{gender === "boy" ? t('animations.boyAnnouncement') : t('animations.girlAnnouncement')}
 				</motion.div>
 			</motion.div>
 		</div>

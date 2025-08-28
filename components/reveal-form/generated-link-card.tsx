@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CopyIcon, CheckIcon, ExternalLinkIcon, AlertTriangleIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/lib/i18n/context';
 
 interface GeneratedLinkCardProps {
   generatedLink: string;
@@ -58,6 +59,7 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
   const [copied, setCopied] = useState(false);
   const [expirationDate, setExpirationDate] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const expDate = getExpirationDate(generatedLink);
@@ -69,8 +71,8 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
       await navigator.clipboard.writeText(generatedLink);
       setCopied(true);
       toast({
-        title: "복사 완료!",
-        description: "링크가 클립보드에 복사되었습니다.",
+        title: t('success.linkCopied'),
+        description: t('success.linkCopiedDescription'),
         variant: "default",
       });
       
@@ -80,8 +82,8 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
       }, 2000);
     } catch (err) {
       toast({
-        title: "복사 실패",
-        description: "링크를 직접 선택하여 복사해주세요.",
+        title: t('success.copyFailed'),
+        description: t('success.copyFailedDescription'),
         variant: "destructive",
       });
     }
@@ -92,7 +94,7 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
 
   return (
     <div className="mt-6 p-4 border rounded-lg bg-muted">
-      <h3 className="font-medium mb-2">Gender Reveal 링크</h3>
+      <h3 className="font-medium mb-2">{t('link.title')}</h3>
       <div className="flex gap-2">
         <Input 
           value={generatedLink} 
@@ -107,7 +109,7 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
           className="flex-shrink-0"
         >
           {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
-          <span className="ml-2">{copied ? "복사됨" : "복사"}</span>
+          <span className="ml-2">{copied ? t('success.linkCopied') : t('common.copy')}</span>
         </Button>
         <Button
           type="button"
@@ -116,7 +118,7 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
           className="flex-shrink-0"
         >
           <ExternalLinkIcon className="h-4 w-4" />
-          <span className="ml-2">테스트</span>
+          <span className="ml-2">{t('link.test')}</span>
         </Button>
       </div>
       
@@ -125,20 +127,20 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
         <div className="flex items-start gap-2">
           <AlertTriangleIcon className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
           <div className="text-sm text-amber-800">
-            <p className="font-medium">링크 만료 안내</p>
+            <p className="font-medium">{t('link.expirationTitle')}</p>
             <p className="mt-1">
-              생성된 링크는 최대 <span className="font-semibold">{defaultDays}일간</span> 유지되며
-              {expirationDate && (
-                <span className="font-semibold"> {expirationDate}까지</span>
-              )} 사용 가능합니다.<br/>
-              만료된 링크로의 접근은 어려울 수 있으니 미리 공유해 주세요.
+              {t('link.expirationDescription', { 
+                days: defaultDays.toString(),
+                date: expirationDate ? ` ${expirationDate}까지` : ''
+              })}<br/>
+              {t('link.expirationWarning')}
             </p>
           </div>
         </div>
       </div>
       
       <p className="text-sm text-muted-foreground mt-2">
-        이 링크를 공유하여 Gender Reveal을 가족 및 이웃들에게 전하세요.
+        {t('link.shareDescription')}
       </p>
     </div>
   );

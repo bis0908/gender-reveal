@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { Gender } from '@/lib/types';
+import { useTranslation } from "@/lib/i18n/context";
 
 interface RevealAnimationProps {
   gender: Gender;
@@ -10,6 +11,7 @@ interface RevealAnimationProps {
 }
 
 export function RevealAnimation({ gender, revealed, onComplete }: RevealAnimationProps) {
+  const { t } = useTranslation();
   const genderColor = gender === 'boy' ? 'baby-blue' : 'baby-pink';
   
   return (
@@ -37,7 +39,7 @@ export function RevealAnimation({ gender, revealed, onComplete }: RevealAnimatio
             animate={revealed ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            {gender === 'boy' ? '왕자님' : '공주님'}
+            {gender === 'boy' ? t('animations.boyTitle') : t('animations.girlTitle')}
           </motion.div>
           
           <motion.div
@@ -46,7 +48,7 @@ export function RevealAnimation({ gender, revealed, onComplete }: RevealAnimatio
             animate={revealed ? { y: 0, opacity: 1 } : { y: 70, opacity: 0 }}
             transition={{ duration: 0.5, delay: 1 }}
           >
-            입니다!
+            {t('animations.finalText')}
           </motion.div>
         </motion.div>
       </motion.div>

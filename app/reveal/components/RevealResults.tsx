@@ -4,6 +4,7 @@ import { SocialShare } from "@/components/social-share";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import type { Gender, BabyInfo } from "@/lib/types";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface RevealResultsProps {
 	motherName: string;
@@ -28,6 +29,8 @@ export function RevealResults({
 	onRestart,
 	resultSectionRef,
 }: RevealResultsProps) {
+	const { t } = useTranslation();
+	
 	// 다태아 성별 요약 정보
 	const getBabiesGenderSummary = () => {
 		if (!isMultipleBabies || !babiesInfo) return "";
@@ -38,8 +41,8 @@ export function RevealResults({
 		).length;
 
 		const parts = [];
-		if (boysCount > 0) parts.push(`남자아이 ${boysCount}명`);
-		if (girlsCount > 0) parts.push(`여자아이 ${girlsCount}명`);
+		if (boysCount > 0) parts.push(t('reveal.results.boysCount', { count: boysCount.toString() }));
+		if (girlsCount > 0) parts.push(t('reveal.results.girlsCount', { count: girlsCount.toString() }));
 
 		return parts.join(", ");
 	};
@@ -65,8 +68,7 @@ export function RevealResults({
 							{getBabiesGenderSummary()}입니다!
 						</h2>
 						<p className="text-gray-600">
-							{motherName}와(과) {fatherName}의 아기들:{" "}
-							{getBabiesGenderSummary()}
+							{t('reveal.results.multipleResult', { motherName, fatherName, summary: getBabiesGenderSummary() })}
 						</p>
 						<motion.div
 							initial={{ opacity: 0 }}
@@ -96,7 +98,7 @@ export function RevealResults({
 										{baby.name}
 									</h3>
 									<p className="text-gray-700">
-										{baby.gender === "boy" ? "남자아이" : "여자아이"}
+										{baby.gender === "boy" ? t('reveal.intro.boyLabel') : t('reveal.intro.girlLabel')}
 									</p>
 								</motion.div>
 							))}
@@ -105,11 +107,14 @@ export function RevealResults({
 				) : (
 					<>
 						<h2 className="text-3xl font-bold mb-4">
-							{gender === "boy" ? "남자아이" : "여자아이"}입니다!
+							{gender === "boy" ? t('reveal.results.boyAnnouncement') : t('reveal.results.girlAnnouncement')}
 						</h2>
 						<p className="text-gray-600">
-							{motherName}와(과) {fatherName}의{" "}
-							{gender === "boy" ? "남자아이" : "여자아이"}입니다!
+							{t('reveal.results.singleResult', { 
+								motherName, 
+								fatherName, 
+								gender: gender === "boy" ? t('reveal.intro.boyLabel') : t('reveal.intro.girlLabel')
+							})}
 						</p>
 					</>
 				)}
@@ -123,7 +128,7 @@ export function RevealResults({
 				>
 					<SocialShare
 						url={shareUrl}
-						title={`${motherName}와(과) ${fatherName}의 Gender Reveal`}
+						title={t('reveal.results.shareTitle', { motherName, fatherName })}
 						motherName={motherName}
 						fatherName={fatherName}
 						gender={isMultipleBabies ? undefined : gender}
@@ -143,16 +148,16 @@ export function RevealResults({
 					size="lg"
 					onClick={onRestart}
 				>
-					다시 보기
+					{t('reveal.results.watchAgain')}
 				</Button>
 
 				{isDemo && (
 					<div className="flex flex-col items-center gap-4">
 						<p className="text-gray-600">
-							나만의 Gender Reveal을 만들고 싶으신가요?
+							{t('reveal.results.createOwnQuestion')}
 						</p>
 						<Button asChild>
-							<Link href="/create">내 Gender Reveal 만들기</Link>
+							<Link href="/create">{t('reveal.results.createOwnButton')}</Link>
 						</Button>
 					</div>
 				)}

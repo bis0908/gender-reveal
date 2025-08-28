@@ -8,14 +8,14 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Switch } from '@/components/ui/switch';
 import { CalendarIcon, ArrowRightIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { formatDateWithLocale, getDateLocale } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import { BabyInfoForm } from '@/components/reveal-form/baby-info-form';
 import { MultipleBabiesForm } from '@/components/reveal-form/multiple-babies-form';
 import type { UseFormReturn } from 'react-hook-form';
 import type { FormValues } from '@/lib/schemas/reveal-form-schema';
 import { useState } from 'react';
+import { useTranslation } from '@/lib/i18n/context';
 
 interface FamilyDetailsFormProps {
   form: UseFormReturn<FormValues>;
@@ -25,12 +25,13 @@ interface FamilyDetailsFormProps {
 export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) {
   const isMultiple = form.watch("isMultiple");
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const { t, language } = useTranslation();
 
   return (
     <div className="space-y-6">
       <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">1단계: 가족 정보 입력</h3>
-        <p className="text-sm text-gray-500">아래 정보를 모두 입력해주세요</p>
+        <h3 className="text-lg font-semibold text-gray-800">{t('form.step1Title')}</h3>
+        <p className="text-sm text-gray-500">{t('form.step1Description')}</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
@@ -38,9 +39,9 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
           name="motherName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>엄마 이름</FormLabel>
+              <FormLabel>{t('form.motherName')}</FormLabel>
               <FormControl>
-                <Input placeholder="엄마 이름 입력" {...field} />
+                <Input placeholder={t('form.motherNamePlaceholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -52,9 +53,9 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
           name="fatherName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>아빠 이름</FormLabel>
+              <FormLabel>{t('form.fatherName')}</FormLabel>
               <FormControl>
-                <Input placeholder="아빠 이름 입력" {...field} />
+                <Input placeholder={t('form.fatherNamePlaceholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,9 +69,9 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
         render={({ field }) => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
             <div className="space-y-0.5">
-              <FormLabel>다태아 여부</FormLabel>
+              <FormLabel>{t('form.isMultipleLabel')}</FormLabel>
               <FormDescription>
-                쌍둥이, 세쌍둥이 등 다태아인 경우 선택하세요
+                {t('form.isMultipleDescription')}
               </FormDescription>
             </div>
             <FormControl>
@@ -94,7 +95,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
         name="dueDate"
         render={({ field }) => (
           <FormItem className="flex flex-col">
-            <FormLabel>출산 예정일 (선택사항)</FormLabel>
+            <FormLabel>{t('form.dueDateLabel')}</FormLabel>
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <FormControl>
@@ -106,9 +107,9 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
                     )}
                   >
                     {field.value ? (
-                      format(field.value, "yyyy년 MM월 dd일 EEEE", { locale: ko })
+                      formatDateWithLocale(field.value, language)
                     ) : (
-                      <span>날짜 선택</span>
+                      <span>{t('form.dueDatePlaceholder')}</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
@@ -126,7 +127,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
                     date < new Date()
                   }
                   initialFocus
-                  locale={ko}
+                  locale={getDateLocale(language)}
                 />
               </PopoverContent>
             </Popover>
@@ -140,10 +141,10 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
         name="message"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>메시지 (선택사항)</FormLabel>
+            <FormLabel>{t('form.messageLabel')}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="초대 메시지를 입력하세요"
+                placeholder={t('form.messagePlaceholder')}
                 className="resize-none"
                 {...field}
               />
@@ -159,7 +160,7 @@ export function FamilyDetailsForm({ form, onNextStep }: FamilyDetailsFormProps) 
           onClick={onNextStep}
           className="flex items-center gap-2 bg-baby-blue-dark text-white"
         >
-          다음
+          {t('common.next')}
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
       </div>
