@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import type { RevealData, Gender } from "@/lib/types";
-import { getDemoExamples } from "./constants";
+import { Header } from "@/components/header";
 import { useTranslation } from "@/lib/i18n/context";
-import { LoadingState } from "./components/LoadingState";
+import { Language } from "@/lib/i18n/types";
+import type { Gender, RevealData } from "@/lib/types";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { ErrorState } from "./components/ErrorState";
-import { RevealIntro } from "./components/RevealIntro";
+import { LoadingState } from "./components/LoadingState";
 import { RevealAnimation } from "./components/RevealAnimation";
+import { RevealIntro } from "./components/RevealIntro";
 import { RevealResults } from "./components/RevealResults";
+import { getDemoExamples } from "./constants";
 
 // 검색 파라미터를 처리하는 별도의 클라이언트 컴포넌트
 function RevealContent() {
@@ -19,7 +20,6 @@ function RevealContent() {
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
 	const demoId = searchParams.get("demo");
-	const demoExamples = getDemoExamples(language);
 
 	const [revealData, setRevealData] = useState<RevealData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -31,6 +31,8 @@ function RevealContent() {
 
 	// 결과 영역에 대한 ref 생성
 	const resultSectionRef = useRef<HTMLDivElement>(null);
+	// 이전 언어 추적을 위한 ref
+	const prevLanguageRef = useRef<Language>(language);
 
 	// 다태아인지 확인하는 헬퍼 함수
 	const isMultipleBabies =
@@ -70,12 +72,23 @@ function RevealContent() {
 		}
 	};
 
+	// 데모 데이터 로드 함수
+	const loadDemoData = useCallback((currentDemoId: string, currentLanguage: Language) => {
+		const currentDemoExamples = getDemoExamples(currentLanguage);
+		if (currentDemoId && currentDemoId in currentDemoExamples) {
+			setRevealData(currentDemoExamples[currentDemoId as keyof typeof currentDemoExamples]);
+			setIsLoading(false);
+			return true;
+		}
+		return false;
+	}, []);
+
+	// 초기 데이터 로드
 	useEffect(() => {
 		// 데모 모드인 경우
-		if (demoId && demoId in demoExamples) {
-			setRevealData(demoExamples[demoId as keyof typeof demoExamples]);
-			setIsLoading(false);
-			return;
+		if (demoId) {
+			const demoLoaded = loadDemoData(demoId, language);
+			if (demoLoaded) return;
 		}
 
 		// 일반 모드인 경우
@@ -120,7 +133,20 @@ function RevealContent() {
 		};
 
 		fetchData();
-	}, [token, demoId]);
+	}, [token, demoId, language, t, loadDemoData]);
+
+	// 데모 모드에서 언어 변경 시 데이터 재로드
+	useEffect(() => {
+		// 언어가 실제로 변경되었는지 확인
+		if (prevLanguageRef.current !== language) {
+			// 데모 모드인 경우에만 데이터 재로드
+			if (demoId) {
+				loadDemoData(demoId, language);
+			}
+			// 이전 언어 값 업데이트
+			prevLanguageRef.current = language;
+		}
+	}, [language, demoId, loadDemoData]);
 
 	const handleStartReveal = () => {
 		setStartCountdown(true);
@@ -237,8 +263,6 @@ function RevealContent() {
 	const {
 		motherName,
 		fatherName,
-		dueDate,
-		message,
 		animationType,
 		countdownTime,
 	} = revealData;
