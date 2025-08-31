@@ -4,7 +4,8 @@
       "Bash(npm run build:*)",
       "Read(c:\\Users\\wskong\\Pictures\\picpick/**)",
       "Bash(tasklist:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

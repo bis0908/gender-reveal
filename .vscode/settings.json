@@ -4,5 +4,6 @@
   ],
   "jest.autoRun": "off",
   "jest.showCoverageOnLoad": false,
-  "jest.autoRevealOutput": "off"
+  "jest.autoRevealOutput": "off",
+  "testing.automaticallyOpenTestResults": "neverOpen"
 }
