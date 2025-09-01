@@ -65,7 +65,7 @@ export function RevealResults({
 				{isMultipleBabies && babiesInfo ? (
 					<>
 						<h2 className="text-3xl font-bold text-center mb-4">
-							{getBabiesGenderSummary()}입니다!
+							{getBabiesGenderSummary()}{t('animations.finalText')}
 						</h2>
 						<p className="text-gray-600">
 							{t('reveal.results.multipleResult', { motherName, fatherName, summary: getBabiesGenderSummary() })}

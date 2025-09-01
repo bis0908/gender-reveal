@@ -26,7 +26,7 @@ export const getSavedLanguage = (): Language => {
   
   try {
     const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language;
-    if (saved && ['ko', 'en'].includes(saved)) {
+    if (saved && ['ko', 'en', 'jp'].includes(saved)) {
       return saved;
     }
   } catch (error) {

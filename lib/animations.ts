@@ -2,11 +2,12 @@ import type { Animation } from './types';
 import type { Language } from './i18n/types';
 import ko from './i18n/locales/ko.json';
 import en from './i18n/locales/en.json';
+import jp from './i18n/locales/jp.json';
 
-const translations = { ko, en };
+const translations = { ko, en, jp };
 
 export function getAnimationOptions(language: Language = 'ko'): Animation[] {
-  const t = translations[language];
+  const t = translations[language] || translations['ko'];
   
   return [
     {

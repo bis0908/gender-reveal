@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CopyIcon, CheckIcon, ExternalLinkIcon, AlertTriangleIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/lib/i18n/context';
+import { AlertTriangleIcon, CheckIcon, CopyIcon, ExternalLinkIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface GeneratedLinkCardProps {
   generatedLink: string;
@@ -131,7 +131,7 @@ export function GeneratedLinkCard({ generatedLink }: GeneratedLinkCardProps) {
             <p className="mt-1">
               {t('link.expirationDescription', { 
                 days: defaultDays.toString(),
-                date: expirationDate ? ` ${expirationDate}까지` : ''
+                date: expirationDate ? ` ${expirationDate}` : ''
               })}<br/>
               {t('link.expirationWarning')}
             </p>

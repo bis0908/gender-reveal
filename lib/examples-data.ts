@@ -99,13 +99,65 @@ const englishExamples: ExampleData[] = [
   },
 ];
 
+// 일본어 예시 데이터 (일본식 이름)
+const japaneseExamples: ExampleData[] = [
+  {
+    id: "example1",
+    motherName: "あさみ",
+    fatherName: "ゆうき",
+    babyName: "こんちゃん",
+    gender: "boy",
+    image: "/images/example1.jpg",
+    animationType: "confetti",
+    description: "爆発するブルーの紙吹雪エフェクトと一緒の可愛い男の子のジェンダーリビール",
+  },
+  {
+    id: "example2",
+    motherName: "みさき",
+    fatherName: "だいすけ",
+    babyName: "あずきちゃん",
+    gender: "girl",
+    image: "/images/example2.jpg",
+    animationType: "balloons",
+    description: "空に舞い上がるピンクの風船と一緒の女の子のジェンダーリビール",
+  },
+  {
+    id: "example3",
+    motherName: "なつみ",
+    fatherName: "りょうた",
+    babyName: "まめちゃん",
+    gender: "boy",
+    image: "/images/example3.jpg",
+    animationType: "fireworks",
+    description: "華やかなブルーの花火が爆発する素敵な男の子のジェンダーリビール",
+  },
+  {
+    id: "example4",
+    motherName: "ゆりか",
+    fatherName: "たかし",
+    babyName: "ひなちゃん",
+    gender: "girl",
+    image: "/images/example4.jpg",
+    animationType: "falling",
+    description: "ピンクの小さなベビー用品が降ってくる愛らしい女の子のジェンダーリビール",
+  },
+];
+
 /**
  * 현재 언어에 맞는 예시 데이터를 반환합니다.
  * @param language 현재 언어 코드
  * @returns 해당 언어의 예시 데이터 배열
  */
 export const getExamplesByLanguage = (language: Language): ExampleData[] => {
-  return language === 'ko' ? koreanExamples : englishExamples;
+  switch (language) {
+    case 'ko':
+      return koreanExamples;
+    case 'jp':
+      return japaneseExamples;
+    case 'en':
+    default:
+      return englishExamples;
+  }
 };
 
 /**
@@ -131,7 +183,13 @@ export const getAnimationTypeName = (
       fireworks: 'Fireworks',
       falling: 'Falling Items',
     },
+    jp: {
+      confetti: '紙吹雪',
+      balloons: '風船',
+      fireworks: '花火',
+      falling: '降下アイテム',
+    },
   };
   
-  return typeNames[language][animationType];
+  return typeNames[language]?.[animationType] || typeNames['en'][animationType];
 };

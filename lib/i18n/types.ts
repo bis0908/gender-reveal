@@ -1,5 +1,5 @@
 // 지원하는 언어 타입
-export type Language = 'ko' | 'en';
+export type Language = 'ko' | 'en' | 'jp';
 
 // 번역 객체의 타입 정의
 export interface Translations {
@@ -152,7 +152,8 @@ export interface LanguageInfo {
 // 지원 언어 목록
 export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
   { code: 'ko', name: 'Korean', nativeName: '한국어' },
-  { code: 'en', name: 'English', nativeName: 'English' }
+  { code: 'en', name: 'English', nativeName: 'English' },
+  { code: 'jp', name: 'Japanese', nativeName: '日本語' }
 ];
 
 // 기본 언어

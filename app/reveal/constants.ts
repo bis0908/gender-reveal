@@ -15,6 +15,12 @@ const messageTemplates = {
     example2: "We're excited to share {{babyName}}'s gender with you. Congratulations to us!",
     example3: "Finally, our {{babyName}} is revealing the gender!",
     example4: "Were you curious about {{babyName}}'s gender? Find out now!"
+  },
+  jp: {
+    example1: "{{babyName}}がついに性別を発表します！一緒にお祝いしてください！",
+    example2: "{{babyName}}の性別をお知らせいたします。お祝いをよろしくお願いします！",
+    example3: "ついに{{babyName}}の性別を発表いたします！",
+    example4: "{{babyName}}の性別が気になっていましたか？今すぐ確認してください！"
   }
 };
 
@@ -26,13 +32,13 @@ const messageTemplates = {
  */
 export const getDemoExamples = (language: Language): Record<string, RevealData> => {
   const examples = getExamplesByLanguage(language);
-  const templates = messageTemplates[language];
+  const templates = messageTemplates[language as keyof typeof messageTemplates];
   
   const demoData: Record<string, RevealData> = {};
   
   examples.forEach((example) => {
     const messageKey = example.id as keyof typeof templates;
-    const message = templates[messageKey]?.replace('{{babyName}}', example.babyName) || '';
+    const message = templates?.[messageKey]?.replace('{{babyName}}', example.babyName) || '';
     
     demoData[example.id] = {
       motherName: example.motherName,
