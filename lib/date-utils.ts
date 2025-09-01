@@ -1,18 +1,21 @@
 import { format as formatDate, Locale } from 'date-fns';
 import { ko } from 'date-fns/locale/ko';
 import { enUS } from 'date-fns/locale/en-US';
+import { ja } from 'date-fns/locale/ja';
 import { Language } from './i18n/types';
 
 // 언어별 date-fns 로케일 매핑
 const DATE_LOCALES: Record<Language, Locale> = {
   ko: ko,
   en: enUS,
+  jp: ja,
 };
 
 // 언어별 날짜 형식 매핑
 const DATE_FORMATS: Record<Language, string> = {
   ko: "yyyy년 MM월 dd일 EEEE",
   en: "EEEE, MMMM dd, yyyy",
+  jp: "yyyy年MM月dd日 EEEE",
 };
 
 /**
@@ -59,7 +62,12 @@ export const formatSimpleDateWithLocale = (
   language: Language
 ): string => {
   const locale = getDateLocale(language);
-  const format = language === 'ko' ? 'yyyy년 MM월 dd일' : 'MMM dd, yyyy';
+  const simpleFormats = {
+    ko: 'yyyy년 MM월 dd일',
+    jp: 'yyyy年MM月dd日',
+    en: 'MMM dd, yyyy'
+  };
+  const format = simpleFormats[language] || simpleFormats.en;
   
   return formatDate(date, format, { locale });
 };
