@@ -11,8 +11,8 @@ const customJestConfig = {
   moduleNameMapper: {
     // 경로 별칭 처리
     '^@/(.*)$': '<rootDir>/$1',
-    '^jose$': '<rootDir>/node_modules/jose/dist/node/cjs/index.js',
-    '^jose/(.*)$': '<rootDir>/node_modules/jose/dist/node/cjs/$1',
+    // jose 모듈을 jest-compatible mock으로 매핑
+    '^jose$': '<rootDir>/tests/__mocks__/jose.js',
   },
   testEnvironment: 'jest-environment-jsdom',
   // 테스트 디렉토리 및 파일 패턴 지정

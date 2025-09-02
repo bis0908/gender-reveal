@@ -5,7 +5,10 @@
       "Read(c:\\Users\\wskong\\Pictures\\picpick/**)",
       "Bash(tasklist:*)",
       "Bash(powershell:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,5 +1,6 @@
 import type { RevealData } from '@/lib/types';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
+import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env';
 
 // 샘플 데이터 객체 정의
 const sampleData: RevealData = {
@@ -12,14 +13,19 @@ const sampleData: RevealData = {
   message: '우리 가족의 새로운 시작을 축하해주세요!'
 };
 
-// 테스트용 비밀키
-const TEST_SECRET = 'gender-reveal-secret-key-2025';
+// 환경 변수에서 인코딩된 비밀 키 가져오기
+const JWT_SECRET = getEncodedSecret();
 
 describe('토큰 관련 기능 테스트', () => {
   // 토큰 생성 테스트
   test('JWT로 데이터를 암호화하여 토큰 생성', async () => {
     // when: 샘플 데이터로 토큰 생성
-    const token = jwt.sign(sampleData, TEST_SECRET, { expiresIn: '7d' });
+    const jwtData = { ...sampleData } as unknown as Record<string, unknown>;
+    const token = await new jose.SignJWT(jwtData)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(JWT_EXPIRATION)
+      .sign(JWT_SECRET);
     
     // then: 토큰이 문자열이며 비어있지 않아야 함
     expect(token).toBeDefined();
@@ -33,10 +39,16 @@ describe('토큰 관련 기능 테스트', () => {
   // 토큰 복호화 테스트
   test('JWT로 토큰에서 원본 데이터 복원', async () => {
     // given: 샘플 데이터를 암호화한 토큰
-    const token = jwt.sign(sampleData, TEST_SECRET);
+    const jwtData = { ...sampleData } as unknown as Record<string, unknown>;
+    const token = await new jose.SignJWT(jwtData)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(JWT_EXPIRATION)
+      .sign(JWT_SECRET);
     
     // when: 토큰 복호화
-    const decryptedData = jwt.verify(token, TEST_SECRET) as RevealData;
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET);
+    const decryptedData = payload as unknown as RevealData;
     
     // then: 복호화된 데이터가 원본과 일치하는지 확인
     expect(decryptedData).toBeDefined();
@@ -49,15 +61,20 @@ describe('토큰 관련 기능 테스트', () => {
   // 만료된 토큰 테스트 (토큰이 만료되면 예외 발생)
   test('만료된 토큰은 예외를 발생시켜야 함', async () => {
     // given: 직접 만료된 토큰 생성
-    const expiredToken = jwt.sign(sampleData, TEST_SECRET, { expiresIn: '1ms' });
+    const jwtData = { ...sampleData } as unknown as Record<string, unknown>;
+    const expiredToken = await new jose.SignJWT(jwtData)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1ms')
+      .sign(JWT_SECRET);
     
     // 잠시 대기하여 토큰이 확실히 만료되도록 함
     await new Promise(resolve => setTimeout(resolve, 10));
     
     // when & then: 만료된 토큰 검증 시도 시 예외 발생
-    expect(() => {
-      jwt.verify(expiredToken, TEST_SECRET);
-    }).toThrow('jwt expired');
+    await expect(async () => {
+      await jose.jwtVerify(expiredToken, JWT_SECRET);
+    }).rejects.toThrow();
   });
 
   // 잘못된 형식의 토큰 테스트
@@ -66,8 +83,8 @@ describe('토큰 관련 기능 테스트', () => {
     const invalidToken = 'invalid.token.format';
     
     // when & then: 유효하지 않은 토큰 검증 시도 시 예외 발생
-    expect(() => {
-      jwt.verify(invalidToken, TEST_SECRET);
-    }).toThrow();
+    await expect(async () => {
+      await jose.jwtVerify(invalidToken, JWT_SECRET);
+    }).rejects.toThrow();
   });
 }); 

@@ -15,8 +15,8 @@ const crypto = require('node:crypto');
 // 64바이트(512비트) 길이의 랜덤 바이트 생성
 const randomBytes = crypto.randomBytes(64);
 
-// Base64 형식으로 인코딩
-const base64Secret = randomBytes.toString('base64');
+// Base64 형식으로 인코딩 (패딩 문자 제거)
+const base64Secret = randomBytes.toString('base64').replace(/[=]+$/, '');
 
 console.warn('\n===== JWT_SECRET for .env.local =====\n');
 console.warn(`JWT_SECRET=${base64Secret}`);
