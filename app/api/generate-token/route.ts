@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import * as jose from 'jose';
 import type { Gender, AnimationType, BabyInfo } from '@/lib/types';
 import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env';
+import { logger } from '@/lib/logger';
+import { createBadRequestError, createJWTError, createValidationError } from '@/lib/errors';
+import { parseRequestBody, validateRequiredFields } from '@/lib/api-utils';
 
 // 환경 변수에서 인코딩된 비밀 키 가져오기
 const JWT_SECRET = getEncodedSecret();
@@ -35,52 +38,34 @@ interface MultipleBabiesRequest {
 type RevealRequest = SingleBabyRequest | MultipleBabiesRequest;
 
 export async function POST(request: Request) {
-  
   try {
-    // 요청 본문 텍스트 확인
-    const requestText = await request.text();
-    
-    // 빈 요청 처리
-    if (!requestText || requestText.trim() === '') {
-      return NextResponse.json({ error: '요청 본문이 비어있습니다.' }, { status: 400 });
-    }
-    
-    // 요청 데이터 파싱
-    let data: RevealRequest;
-    try {
-      data = JSON.parse(requestText) as RevealRequest;
-    } catch (parseError) {
-      console.error('[ERROR:API] 요청 본문 파싱 오류:', parseError);
-      return NextResponse.json({ error: '잘못된 JSON 형식입니다.' }, { status: 400 });
-    }
-    
-    
-    // 필수 필드 검증
-    if (!data.motherName || !data.fatherName || !data.animationType) {
-      return NextResponse.json(
-        { error: '필수 정보가 누락되었습니다.' },
-        { status: 400 }
-      );
-    }
-    
+    // 요청 본문 파싱
+    const data = await parseRequestBody<RevealRequest>(request);
+
+    // 공통 필수 필드 검증
+    validateRequiredFields(data, ['motherName', 'fatherName', 'animationType']);
+
     // 다태아 여부에 따라 추가 검증
     if (data.isMultiple) {
       if (!data.babiesInfo || data.babiesInfo.length < 2) {
-        return NextResponse.json(
-          { error: '다태아 정보가 올바르지 않습니다. 최소 2명 이상의 아기 정보가 필요합니다.' },
-          { status: 400 }
+        logger.warn('다태아 정보 부족', {
+          endpoint: '/api/generate-token',
+          babiesCount: data.babiesInfo?.length || 0
+        });
+        throw createValidationError(
+          '다태아 정보가 올바르지 않습니다. 최소 2명 이상의 아기 정보가 필요합니다.'
         );
       }
     } else {
       if (!data.babyName || !data.gender) {
-        return NextResponse.json(
-          { error: '아기 이름과 성별 정보가 필요합니다.' },
-          { status: 400 }
-        );
+        logger.warn('단태아 정보 누락', {
+          endpoint: '/api/generate-token'
+        });
+        throw createValidationError('아기 이름과 성별 정보가 필요합니다.');
       }
     }
-    
-    // 토큰에 포함할 최소 데이터 구성 (유형에 따라 다름)
+
+    // 토큰에 포함할 데이터 구성
     const tokenData = {
       motherName: data.motherName,
       fatherName: data.fatherName,
@@ -89,30 +74,49 @@ export async function POST(request: Request) {
       isMultiple: data.isMultiple,
       ...(data.dueDate && { dueDate: data.dueDate }),
       ...(data.message && { message: data.message }),
-      ...(data.isMultiple 
-        ? { babiesInfo: data.babiesInfo } 
+      ...(data.isMultiple
+        ? { babiesInfo: data.babiesInfo }
         : { babyName: data.babyName, gender: data.gender }
       )
     };
-    
-    
+
     try {
-      // JWT 토큰 생성 (환경 변수에서 만료 시간 설정)
+      // JWT 토큰 생성
       const token = await new jose.SignJWT(tokenData as unknown as Record<string, unknown>)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime(JWT_EXPIRATION)
         .sign(JWT_SECRET);
-      
-      
-      // 토큰 반환 (NextResponse.json 사용)
+
+      logger.info('토큰 생성 성공', {
+        endpoint: '/api/generate-token',
+        isMultiple: data.isMultiple
+      });
+
       return NextResponse.json({ token, success: true });
     } catch (jwtError) {
-      console.error('[ERROR:API] JWT 생성 오류:', jwtError);
-      return NextResponse.json({ error: 'JWT 토큰 생성 오류가 발생했습니다.', success: false }, { status: 500 });
+      logger.error(
+        'JWT 토큰 생성 실패',
+        { endpoint: '/api/generate-token' },
+        jwtError instanceof Error ? jwtError : new Error('Unknown JWT error')
+      );
+      throw createJWTError('토큰 생성에 실패했습니다.');
     }
   } catch (error) {
-    console.error('[ERROR:API] 토큰 생성 오류:', error);
-    return NextResponse.json({ error: '토큰 생성 중 오류가 발생했습니다.', success: false }, { status: 500 });
+    // 에러가 AppError인 경우 그대로 던지기
+    if (error instanceof Error && error.name === 'AppError') {
+      throw error;
+    }
+
+    logger.error(
+      '토큰 생성 중 예상치 못한 오류',
+      { endpoint: '/api/generate-token' },
+      error instanceof Error ? error : new Error('Unknown error')
+    );
+
+    return NextResponse.json(
+      { error: '서버 오류가 발생했습니다.', success: false },
+      { status: 500 }
+    );
   }
-} 
+}
