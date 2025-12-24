@@ -52,8 +52,8 @@ if (typeof global.Request === 'undefined') {
 process.env.JWT_SECRET = 'test-secret-key-for-jest-tests';
 process.env.JWT_EXPIRATION = '7d';
 
-// lib/env.ts 모킹 설정
-jest.mock('@/lib/env', () => ({
+// lib/env.server.ts 모킹 설정
+jest.mock('@/lib/env.server', () => ({
   getEncodedSecret: () => {
     const JWT_SECRET_KEY = process.env.JWT_SECRET || 'test-secret-key-for-jest-tests';
     return new TextEncoder().encode(JWT_SECRET_KEY);

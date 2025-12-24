@@ -1,6 +1,6 @@
 import * as jose from 'jose';
 import type { RevealData } from '@/lib/types';
-import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env';
+import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env.server';
 
 // 샘플 데이터 객체 정의
 const sampleData: RevealData = {

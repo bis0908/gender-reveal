@@ -3,7 +3,7 @@
  * 환경에 따라 적절한 로그 레벨과 형식을 제공
  */
 
-import { ENV } from "./env";
+import { IS_PRODUCTION, IS_DEVELOPMENT } from "./config";
 
 // 로그 레벨 정의
 export enum LogLevel {
@@ -93,7 +93,7 @@ function formatLog(
     logData.error = {
       name: error.name,
       message: error.message,
-      ...(ENV.IS_DEVELOPMENT && { stack: error.stack }),
+      ...(IS_DEVELOPMENT && { stack: error.stack }),
     };
   }
 
@@ -106,7 +106,7 @@ function formatLog(
 class Logger {
   private shouldLog(level: LogLevel): boolean {
     // 프로덕션에서는 ERROR, WARN만 출력
-    if (ENV.IS_PRODUCTION) {
+    if (IS_PRODUCTION) {
       return level === LogLevel.ERROR || level === LogLevel.WARN;
     }
     // 개발 환경에서는 모든 레벨 출력

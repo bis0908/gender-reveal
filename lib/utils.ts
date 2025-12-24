@@ -1,41 +1,12 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import * as jose from 'jose';
-import type { RevealData } from './types';
 
+/**
+ * Tailwind CSS 클래스 병합 유틸리티
+ * shadcn/ui 컴포넌트에서 조건부 스타일링에 사용
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-// 환경 변수에서 인코딩된 비밀 키 가져오기
-import { getEncodedSecret, JWT_EXPIRATION } from './env';
-
-export async function encryptData(data: RevealData): Promise<string> {
-  try {
-    // 안전한 타입 변환을 위해 unknown으로 먼저 변환
-    const jwtData = { ...data } as unknown as Record<string, unknown>;
-    const JWT_SECRET = getEncodedSecret();
-    return await new jose.SignJWT(jwtData)
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime(JWT_EXPIRATION)
-      .sign(JWT_SECRET);
-  } catch (error) {
-    console.error('Error encrypting data:', error);
-    throw error;
-  }
-}
-
-export async function decryptData(token: string): Promise<RevealData | null> {
-  try {
-    const JWT_SECRET = getEncodedSecret();
-    const { payload } = await jose.jwtVerify(token, JWT_SECRET);
-    // 안전한 타입 변환을 위해 unknown으로 먼저 변환
-    return payload as unknown as RevealData;
-  } catch (error) {
-    console.error('Error decrypting data:', error);
-    return null;
-  }
 }
 
 export function getGenderColor(gender: "boy" | "girl", variant: "light" | "DEFAULT" | "dark" = "DEFAULT") {

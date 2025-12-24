@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import * as jose from 'jose';
 import type { Gender, AnimationType, BabyInfo } from '@/lib/types';
-import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env';
+import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env.server';
 import { logger } from '@/lib/logger';
 import { createBadRequestError, createJWTError, createValidationError } from '@/lib/errors';
 import { parseRequestBody, validateRequiredFields } from '@/lib/api-utils';
-
-// 환경 변수에서 인코딩된 비밀 키 가져오기
-const JWT_SECRET = getEncodedSecret();
 
 // 클라이언트에서 받을 데이터 타입 정의 (단일 아기)
 interface SingleBabyRequest {
@@ -81,7 +78,8 @@ export async function POST(request: Request) {
     };
 
     try {
-      // JWT 토큰 생성
+      // JWT 토큰 생성 (비밀키는 함수 실행 시점에 가져옴)
+      const JWT_SECRET = getEncodedSecret();
       const token = await new jose.SignJWT(tokenData as unknown as Record<string, unknown>)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()

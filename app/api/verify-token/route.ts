@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import * as jose from 'jose';
 import type { RevealData } from '@/lib/types';
-import { getEncodedSecret } from '@/lib/env';
+import { getEncodedSecret } from '@/lib/env.server';
 import { logger } from '@/lib/logger';
 import { createBadRequestError, createUnauthorizedError, createJWTError } from '@/lib/errors';
 import { parseRequestBody } from '@/lib/api-utils';
-
-// 환경 변수에서 인코딩된 비밀 키 가져오기
-const JWT_SECRET = getEncodedSecret();
 
 interface VerifyTokenRequest {
   token: string;
@@ -24,7 +21,8 @@ export async function POST(request: Request) {
     }
 
     try {
-      // JWT 토큰 검증
+      // JWT 토큰 검증 (비밀키는 함수 실행 시점에 가져옴)
+      const JWT_SECRET = getEncodedSecret();
       const { payload } = await jose.jwtVerify(token, JWT_SECRET);
 
       logger.info('토큰 검증 성공', {

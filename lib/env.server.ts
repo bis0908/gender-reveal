@@ -1,10 +1,14 @@
 /**
- * 환경 변수 관리 및 검증
+ * 서버 전용 환경 변수 관리 및 검증
  * 프로덕션 환경에서는 반드시 환경 변수가 설정되어야 함
+ *
+ * ⚠️ 이 파일은 클라이언트 번들에 절대 포함되지 않음 (.server.ts 파일명 규칙)
+ * - Next.js가 .server.ts 파일을 서버 전용으로 인식
+ * - 클라이언트 번들에서 자동으로 제외됨
+ * - process.env 접근이 안전함 (서버에서만 실행)
  */
 
-// 환경 타입 정의
-type Environment = 'development' | 'production' | 'test';
+import { IS_PRODUCTION, IS_DEVELOPMENT, type Environment } from './config';
 
 // 환경 변수 검증 결과
 interface EnvValidationResult {
@@ -12,11 +16,6 @@ interface EnvValidationResult {
   errors: string[];
   warnings: string[];
 }
-
-// 현재 환경
-const NODE_ENV = (process.env.NODE_ENV || 'development') as Environment;
-const IS_PRODUCTION = NODE_ENV === 'production';
-const IS_DEVELOPMENT = NODE_ENV === 'development';
 
 /**
  * 환경 변수 검증 함수
@@ -54,7 +53,7 @@ function validateEnvironmentVariables(): EnvValidationResult {
   };
 }
 
-// 검증 실행
+// 검증 실행 (서버 시작 시)
 const validation = validateEnvironmentVariables();
 
 // 에러가 있으면 프로세스 종료 (프로덕션)
@@ -76,15 +75,6 @@ export const JWT_SECRET = process.env.JWT_SECRET ||
 
 // JWT 만료 시간
 export const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '7d';
-
-// 환경 정보 (디버깅용, 민감 정보 제외)
-export const ENV = {
-  NODE_ENV,
-  IS_PRODUCTION,
-  IS_DEVELOPMENT,
-  JWT_EXPIRATION,
-  // JWT_SECRET은 노출하지 않음
-} as const;
 
 /**
  * 인코딩된 비밀키 반환 (에러 처리 강화)
