@@ -248,3 +248,7 @@ next-env.d.ts
 .cursor/
 
 -p/
+
+_bmad/
+_bmad*
+.claude/

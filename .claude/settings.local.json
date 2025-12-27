@@ -16,7 +16,18 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: 에러 처리 및 로깅 인프라 추가\n\n- 중앙화된 에러 클래스 정의 (lib/errors.ts)\n- 구조화된 로거 시스템 구현 (lib/logger.ts)\n- API 요청 처리 유틸리티 함수 추가 (lib/api-utils.ts)\n- .env.example 파일 추가\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit -m \"$(cat <<''EOF''\nrefactor: 환경 변수 관리 강화\n\n- 환경 변수 검증 로직 추가\n- 프로덕션 환경에서 필수 환경 변수 강제\n- 개발 환경에서 경고 메시지 출력\n- JWT_SECRET 길이 검증 (최소 32자)\n- 환경 변수 검증 상태 확인 함수 추가\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit -m \"$(cat <<''EOF''\nrefactor: API 라우트 에러 처리 및 로깅 개선\n\n- 중앙화된 에러 클래스 사용\n- 구조화된 로깅 적용\n- API 유틸리티 함수 활용\n- 에러 처리 일관성 개선\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git commit -m \"$(cat <<''EOF''\nchore: 개발 도구 및 설정 업데이트\n\n- Biome 버전 업데이트 (2.2.2 -> 2.3.7)\n- Next.js 및 의존성 버전 업데이트\n- Biome 설정 개선 (lineWidth 80으로 조정)\n- Claude Code 설정 권한 추가\n- CLAUDE.md 문서 포맷팅 개선\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nchore: 개발 도구 및 설정 업데이트\n\n- Biome 버전 업데이트 (2.2.2 -> 2.3.7)\n- Next.js 및 의존성 버전 업데이트\n- Biome 설정 개선 (lineWidth 80으로 조정)\n- Claude Code 설정 권한 추가\n- CLAUDE.md 문서 포맷팅 개선\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(cd:*)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" log --oneline --grep=\"환경 변수\" --all)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" log --oneline -20)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" show 78590ba --stat)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" show 78590ba)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" log --all --full-history -- \"lib/utils.ts\")",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" status)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" diff lib/env.ts)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" show 78590ba:lib/env.ts)",
+      "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" log --all -p --follow -- lib/env.ts)",
+      "Bash(npm audit:*)"
     ],
     "deny": [],
     "ask": []
