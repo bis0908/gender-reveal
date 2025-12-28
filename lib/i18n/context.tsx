@@ -135,7 +135,8 @@ export function LanguageProvider({
     };
 
     initializeTranslations();
-  }, [isClient, initialLanguage, loadLanguageTranslations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient, initialLanguage]);
 
   const contextValue: I18nContextType = {
     language,
