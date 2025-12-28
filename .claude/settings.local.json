@@ -27,7 +27,10 @@
       "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" diff lib/env.ts)",
       "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" show 78590ba:lib/env.ts)",
       "Bash(git -C \"D:\\\\workSpace\\\\nodejs-pjt\\\\gender-reveal\" log --all -p --follow -- lib/env.ts)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel logs:*)",
+      "Bash(vercel inspect:*)"
     ],
     "deny": [],
     "ask": []
