@@ -18,12 +18,7 @@ export interface RevealData {
   babiesInfo?: BabyInfo[];
 }
 
-export type AnimationType = 
-  | "confetti" 
-  | "balloons" 
-  | "fireworks" 
-  | "falling" 
-  | "reveal";
+export type AnimationType = "confetti" | "balloons" | "fireworks" | "falling";
 
 export interface Animation {
   id: AnimationType;
