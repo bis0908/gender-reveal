@@ -34,6 +34,12 @@ export function getAnimationOptions(language: Language = "ko"): Animation[] {
       description: t.animations.fallingDesc,
       thumbnail: "/images/falling-thumb.png",
     },
+    {
+      id: "reveal",
+      name: t.animations.revealName,
+      description: t.animations.revealDesc,
+      thumbnail: "/images/reveal-thumb.png",
+    },
   ];
 }
 
