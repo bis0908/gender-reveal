@@ -1,0 +1,126 @@
+/* GPU 가속 CSS 애니메이션 - 성능 최적화 버전 */
+
+.fallingItem {
+  position: absolute;
+  top: 0;
+  font-size: 4rem;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+  /* GPU 가속 강제 */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  /* CSS 변수를 통한 동적 애니메이션 */
+  animation: fall var(--duration) linear var(--delay) forwards;
+  left: var(--x-pos);
+  color: var(--color);
+  opacity: 0;
+}
+
+/* 기본 낙하 애니메이션 */
+@keyframes fall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--target-opacity);
+  }
+  90% {
+    opacity: var(--target-opacity);
+  }
+  100% {
+    transform: translateY(calc(100vh + 100px)) rotate(var(--rotation));
+    opacity: 0;
+  }
+}
+
+/* 흔들림 효과가 있는 아이템 */
+.swing {
+  animation:
+    fall var(--duration) linear var(--delay) forwards,
+    swing var(--duration) ease-in-out var(--delay) infinite;
+}
+
+/* 좌우 흔들림 애니메이션 */
+@keyframes swing {
+  0% {
+    transform: translateY(-50px) translateX(-30px) rotate(0deg);
+  }
+  10% {
+    opacity: var(--target-opacity);
+  }
+  25% {
+    transform: translateY(25vh) translateX(30px)
+      rotate(calc(var(--rotation) * 0.25));
+  }
+  50% {
+    transform: translateY(50vh) translateX(-15px)
+      rotate(calc(var(--rotation) * 0.5));
+  }
+  75% {
+    transform: translateY(75vh) translateX(15px)
+      rotate(calc(var(--rotation) * 0.75));
+  }
+  90% {
+    opacity: var(--target-opacity);
+  }
+  100% {
+    transform: translateY(calc(100vh + 100px)) translateX(0px)
+      rotate(var(--rotation));
+    opacity: 0;
+  }
+}
+
+/* 배경 그라데이션 */
+.background {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1000ms ease-in-out;
+}
+
+.backgroundBoy {
+  background: radial-gradient(
+    circle,
+    rgba(239, 246, 255, 1) 0%,
+    rgba(219, 234, 254, 1) 100%
+  );
+}
+
+.backgroundGirl {
+  background: radial-gradient(
+    circle,
+    rgba(253, 242, 248, 1) 0%,
+    rgba(252, 231, 243, 1) 100%
+  );
+}
+
+/* 텍스트 공지 */
+.announcement {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.announcementText {
+  font-size: 7rem;
+  text-align: center;
+  font-weight: bold;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.textBoy {
+  color: #1e3a8a; /* baby-blue-dark */
+}
+
+.textGirl {
+  color: #9f1239; /* baby-pink-dark */
+}
+
+/* 모바일 반응형 */
+@media (min-width: 640px) {
+  .announcementText {
+    font-size: 9rem;
+  }
+}

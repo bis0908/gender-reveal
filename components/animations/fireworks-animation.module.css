@@ -1,0 +1,267 @@
+/* GPU 가속 CSS 애니메이션 - 불꽃놀이 성능 최적화 버전 */
+
+.container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #1f2937; /* gray-900 */
+}
+
+/* 별빛 효과 배경 */
+.starsBackground {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 60%, white, transparent),
+    radial-gradient(1px 1px at 33% 80%, white, transparent),
+    radial-gradient(1px 1px at 15% 70%, white, transparent);
+  background-size: 200% 200%;
+  background-position: 0% 0%;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 로켓 발사 애니메이션 */
+.rocket {
+  position: absolute;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  /* GPU 가속 */
+  transform: translateZ(0);
+  will-change: transform;
+  box-shadow: 0 0 6px 3px var(--color);
+  background-color: var(--color);
+  z-index: 2;
+  animation: rocketLaunch var(--duration) var(--delay) linear forwards;
+  left: var(--start-x);
+}
+
+/* 로켓 궤적 효과 - 따뜻한 색상 그라데이션 */
+.rocket::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 4px;
+  height: 120px; /* 60px → 120px로 증가 */
+  /* 로켓 진행 방향으로 회전 */
+  transform: translateX(-50%) rotate(calc(var(--angle) + 90deg));
+  transform-origin: top center;
+  background: linear-gradient(
+    to bottom,
+    var(--color),
+    rgba(255, 200, 100, 0.9),
+    rgba(255, 150, 50, 0.7),
+    rgba(255, 100, 0, 0.4),
+    rgba(255, 50, 0, 0.2),
+    transparent
+  );
+  border-radius: 50% 50% 0 0;
+  opacity: 1;
+  filter: blur(1.5px);
+  /* 아래에서부터 사라지는 clip-path 애니메이션 */
+  animation: trailFade var(--duration) var(--delay) ease-in forwards;
+}
+
+/* 불꽃 파티클 효과 (sparkles) */
+.rocket::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 200, 100, 0.6) 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(255, 150, 50, 0.5) 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 50% 80%,
+      rgba(255, 100, 0, 0.4) 1px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 30% 50%,
+      rgba(255, 200, 150, 0.5) 1px,
+      transparent 2px
+    );
+  background-size: 100% 100%;
+  opacity: 0.7;
+  animation: sparkle var(--duration) var(--delay) ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes trailFade {
+  /* 0-66%: 1초간 궤적 유지 (duration이 1.5초 가정) */
+  0% {
+    opacity: 1;
+    clip-path: inset(0% 0% 0% 0%);
+  }
+  66% {
+    opacity: 1;
+    clip-path: inset(0% 0% 0% 0%);
+  }
+  /* 66-100%: 아래에서부터 서서히 사라짐 */
+  75% {
+    opacity: 0.8;
+    clip-path: inset(0% 0% 30% 0%);
+  }
+  85% {
+    opacity: 0.5;
+    clip-path: inset(0% 0% 60% 0%);
+  }
+  95% {
+    opacity: 0.2;
+    clip-path: inset(0% 0% 90% 0%);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(0% 0% 100% 0%);
+  }
+}
+
+@keyframes rocketLaunch {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(var(--end-x), var(--end-y));
+  }
+}
+
+/* 불꽃 폭발 컨테이너 */
+.firework {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 5;
+}
+
+/* 폭발 순간의 플래시 효과 */
+.flash {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 0 40px 20px white;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  animation: flashEffect 0.2s ease-out forwards;
+}
+
+@keyframes flashEffect {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2);
+  }
+}
+
+/* 파티클 - GPU 가속 최적화 */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  /* GPU 가속 */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  width: var(--size);
+  height: var(--size);
+  background-color: var(--color);
+  box-shadow: 0 0 calc(var(--size) * 2) calc(var(--size) * 0.5) var(--color);
+  top: 0;
+  left: 0;
+  z-index: 10;
+  animation: particleBurst var(--duration) ease-out forwards;
+}
+
+@keyframes particleBurst {
+  0% {
+    transform: translate(0, 0) scale(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(var(--target-x), var(--target-y)) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(var(--target-x), var(--target-y)) scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--target-x), var(--target-y)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* 텍스트 공지 */
+.announcement {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.announcementText {
+  font-size: 7rem;
+  text-align: center;
+  font-weight: bold;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.textBoy {
+  color: #93c5fd; /* baby-blue */
+}
+
+.textGirl {
+  color: #f9a8d4; /* baby-pink */
+}
+
+/* 모바일 반응형 */
+@media (min-width: 640px) {
+  .announcementText {
+    font-size: 9rem;
+  }
+}
