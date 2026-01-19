@@ -266,3 +266,5 @@ _bmad*
 *.zip
 *.zipx
 *.tgz
+
+miscs/**
