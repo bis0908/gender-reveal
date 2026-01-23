@@ -1,13 +1,23 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { RevealForm } from '@/components/reveal-form';
+import { FeedbackModal } from '@/components/feedback/feedback-modal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/lib/i18n/context';
 
 export default function CreatePage() {
   const { t, isInitialized, isLoading } = useTranslation();
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+  // 링크 생성 완료 시 3초 후 피드백 모달 표시
+  const handleLinkGenerated = () => {
+    setTimeout(() => {
+      setShowFeedbackModal(true);
+    }, 3000);
+  };
   
   // 번역이 초기화되지 않았거나 로딩 중일 때 로딩 UI 표시
   if (!isInitialized || isLoading) {
@@ -47,12 +57,18 @@ export default function CreatePage() {
               <p className="text-xs text-red-500">{t('create.privacyNotice')}</p>
           </CardHeader>
           <CardContent>
-            <RevealForm />
+            <RevealForm onLinkGenerated={handleLinkGenerated} />
           </CardContent>
         </Card>
       </div>
-      
+
       <Footer />
+
+      {/* 피드백 모달 */}
+      <FeedbackModal
+        open={showFeedbackModal}
+        onOpenChange={setShowFeedbackModal}
+      />
     </main>
   );
 }
