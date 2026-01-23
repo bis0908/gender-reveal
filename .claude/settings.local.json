@@ -33,7 +33,12 @@
       "Bash(vercel inspect:*)",
       "Skill(superpowers-developing-for-claude-code:working-with-claude-code)",
       "Bash(ls:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(if [ -d \".next\" ])",
+      "Bash(then rm -rf .next)",
+      "Bash(else echo \"✓ .next 폴더 없음 \\(정상\\)\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []
