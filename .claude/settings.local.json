@@ -38,7 +38,9 @@
       "Bash(if [ -d \".next\" ])",
       "Bash(then rm -rf .next)",
       "Bash(else echo \"✓ .next 폴더 없음 \\(정상\\)\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(timeout /t 10)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

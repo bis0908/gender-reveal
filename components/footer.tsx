@@ -59,6 +59,14 @@ export function Footer() {
 									{t('nav.examples')}
 								</Link>
 							</li>
+							<li>
+								<Link
+									href="/changelog"
+									className="text-gray-600 hover:text-primary transition-colors"
+								>
+									📋 {t('footer.whatsNew')}
+								</Link>
+							</li>
 							{/* <li><Link href="/about" className="text-gray-600 hover:text-primary transition-colors">{t('nav.about')}</Link></li> */}
 						</ul>
 					</div>
