@@ -1,18 +1,35 @@
 /**
- * 간단한 in-memory rate limiter
- * IP 주소별로 요청 횟수를 제한
+ * Rate Limiter (Redis 전용)
+ *
+ * Vercel Serverless 환경에서는 인스턴스 간 메모리 공유가 불가능하므로
+ * In-Memory Fallback은 의미 없음. Redis 사용 권장.
+ * Redis 미설정 시 rate limit을 스킵하고 요청 허용.
  */
 
-// IP별 요청 타임스탬프를 저장하는 Map
-const rateLimitMap = new Map<string, number[]>();
+import { getRedisClient, isRedisConnected } from "./redis";
+import { logger } from "./logger";
 
 /**
  * Rate limit 설정
  */
 const RATE_LIMIT_CONFIG = {
   windowMs: 60 * 60 * 1000, // 1시간
-  maxRequests: 3, // 최대 3회
+  maxRequests: 5, // 최대 5회
 } as const;
+
+/**
+ * Redis 사용 가능 여부 확인
+ */
+async function isRedisAvailable(): Promise<boolean> {
+  try {
+    if (isRedisConnected()) return true;
+    if (!process.env.REDIS_URL) return false;
+    await getRedisClient();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * IP 주소에 대한 rate limit 체크
@@ -20,78 +37,67 @@ const RATE_LIMIT_CONFIG = {
  * @param ip - 클라이언트 IP 주소
  * @returns true면 허용, false면 제한 초과
  */
-export function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
+export async function checkRateLimit(ip: string): Promise<boolean> {
   const { windowMs, maxRequests } = RATE_LIMIT_CONFIG;
 
-  // 해당 IP의 요청 기록 가져오기
-  const requests = rateLimitMap.get(ip) || [];
-
-  // 시간 윈도우 내의 요청만 필터링
-  const recentRequests = requests.filter((time) => now - time < windowMs);
-
-  // 최대 요청 수 초과 여부 확인
-  if (recentRequests.length >= maxRequests) {
-    return false;
+  // Redis 미사용 시 rate limit 스킵 (허용)
+  if (!(await isRedisAvailable())) {
+    logger.warn("Redis 미연결, rate limit 스킵", { ip });
+    return true;
   }
 
-  // 현재 요청 추가
-  recentRequests.push(now);
-  rateLimitMap.set(ip, recentRequests);
+  try {
+    const client = await getRedisClient();
+    const key = `rate_limit:feedback:${ip}`;
 
-  return true;
+    // 현재 카운트 조회 및 증가
+    const currentCount = await client.incr(key);
+
+    // 키가 처음 생성된 경우 만료 시간 설정
+    if (currentCount === 1) {
+      await client.expire(key, Math.floor(windowMs / 1000));
+    }
+
+    if (currentCount > maxRequests) {
+      logger.warn("Rate limit 초과", { ip, count: currentCount });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    // Redis 에러 시 허용 (fail-open)
+    logger.error("Rate limit 체크 실패, 요청 허용", { ip }, error as Error);
+    return true;
+  }
 }
 
 /**
  * 특정 IP의 rate limit 상태 조회
- *
- * @param ip - 클라이언트 IP 주소
- * @returns 남은 요청 횟수와 리셋 시간
  */
-export function getRateLimitStatus(ip: string): {
+export async function getRateLimitStatus(ip: string): Promise<{
   remaining: number;
   resetAt: Date | null;
-} {
-  const now = Date.now();
+}> {
   const { windowMs, maxRequests } = RATE_LIMIT_CONFIG;
-
-  const requests = rateLimitMap.get(ip) || [];
-  const recentRequests = requests.filter((time) => now - time < windowMs);
-
-  const remaining = Math.max(0, maxRequests - recentRequests.length);
-  const oldestRequest = recentRequests[0];
-  const resetAt = oldestRequest
-    ? new Date(oldestRequest + windowMs)
-    : null;
-
-  return { remaining, resetAt };
-}
-
-/**
- * 주기적으로 오래된 데이터 정리 (메모리 관리)
- * 프로덕션 환경에서는 Redis 등 외부 저장소 사용 권장
- */
-export function cleanupOldRateLimitData(): void {
   const now = Date.now();
-  const { windowMs } = RATE_LIMIT_CONFIG;
 
-  // Array.from을 사용하여 타입스크립트 호환성 개선
-  const entries = Array.from(rateLimitMap.entries());
-
-  for (const [ip, requests] of entries) {
-    const recentRequests = requests.filter((time) => now - time < windowMs);
-
-    if (recentRequests.length === 0) {
-      // 최근 요청이 없으면 삭제
-      rateLimitMap.delete(ip);
-    } else {
-      // 최근 요청만 유지
-      rateLimitMap.set(ip, recentRequests);
-    }
+  if (!(await isRedisAvailable())) {
+    return { remaining: maxRequests, resetAt: null };
   }
-}
 
-// 1시간마다 자동 정리 (서버 시작 시)
-if (typeof window === "undefined") {
-  setInterval(cleanupOldRateLimitData, 60 * 60 * 1000);
+  try {
+    const client = await getRedisClient();
+    const key = `rate_limit:feedback:${ip}`;
+
+    const count = parseInt((await client.get(key)) || "0", 10);
+    const ttl = await client.ttl(key);
+
+    const remaining = Math.max(0, maxRequests - count);
+    const resetAt = ttl > 0 ? new Date(now + ttl * 1000) : null;
+
+    return { remaining, resetAt };
+  } catch (error) {
+    logger.error("Rate limit 상태 조회 실패", { ip }, error as Error);
+    return { remaining: maxRequests, resetAt: null };
+  }
 }

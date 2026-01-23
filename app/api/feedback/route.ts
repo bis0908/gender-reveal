@@ -3,6 +3,7 @@ import { feedbackFormSchema } from "@/lib/schemas/feedback-schema";
 import { appendFeedbackToSheet } from "@/lib/services/google-sheets";
 import { sendFeedbackNotification } from "@/lib/services/email";
 import { checkRateLimit, getRateLimitStatus } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
 import type { FeedbackData } from "@/lib/schemas/feedback-schema";
 
 /**
@@ -41,12 +42,20 @@ function getKSTTimestamp(): string {
  * 피드백 제출 처리
  */
 export async function POST(request: NextRequest) {
+  const requestId = crypto.randomUUID();
+  const context = { requestId, path: "/api/feedback", method: "POST" };
+
   try {
     // 1. Rate limiting 체크
     const clientIp = getClientIp(request);
+    
+    // Async check for rate limit (Redis support)
+    const isAllowed = await checkRateLimit(clientIp);
 
-    if (!checkRateLimit(clientIp)) {
-      const status = getRateLimitStatus(clientIp);
+    if (!isAllowed) {
+      const status = await getRateLimitStatus(clientIp);
+      logger.warn("Rate limit exceeded", { ...context, clientIp });
+      
       return NextResponse.json(
         {
           error: "너무 많은 요청을 보냈습니다",
@@ -63,6 +72,7 @@ export async function POST(request: NextRequest) {
     const validationResult = feedbackFormSchema.safeParse(body);
 
     if (!validationResult.success) {
+      logger.warn("Validation failed", { ...context, errors: validationResult.error.flatten() });
       return NextResponse.json(
         {
           error: "입력값이 올바르지 않습니다",
@@ -84,6 +94,8 @@ export async function POST(request: NextRequest) {
     };
 
     // 5. Google Sheets 저장 및 이메일 발송 (병렬 처리)
+    logger.info("Processing feedback submission", context);
+    
     const [sheetsResult, emailResult] = await Promise.allSettled([
       appendFeedbackToSheet(feedbackData),
       sendFeedbackNotification(feedbackData),
@@ -93,12 +105,12 @@ export async function POST(request: NextRequest) {
     const errors: string[] = [];
 
     if (sheetsResult.status === "rejected") {
-      console.error("Google Sheets 저장 실패:", sheetsResult.reason);
+      logger.error("Google Sheets save failed", context, sheetsResult.reason as Error);
       errors.push("피드백 저장 실패");
     }
 
     if (emailResult.status === "rejected") {
-      console.error("이메일 발송 실패:", emailResult.reason);
+      logger.error("Email notification failed", context, emailResult.reason as Error);
       errors.push("이메일 알림 실패");
     }
 
@@ -116,6 +128,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 완전 성공
+    logger.info("Feedback submitted successfully", context);
     return NextResponse.json(
       {
         success: true,
@@ -124,7 +137,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("피드백 처리 중 오류:", error);
+    logger.error("Server error processing feedback", context, error as Error);
 
     return NextResponse.json(
       {
