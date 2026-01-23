@@ -1,24 +1,39 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { RevealForm } from '@/components/reveal-form';
-import { FeedbackModal } from '@/components/feedback/feedback-modal';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTranslation } from '@/lib/i18n/context';
+import { useState } from "react";
+import { FeedbackModal } from "@/components/feedback/feedback-modal";
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
+import { RevealForm } from "@/components/reveal-form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useFeedbackModalThrottle } from "@/hooks/useFeedbackModalThrottle";
+import { useTranslation } from "@/lib/i18n/context";
 
 export default function CreatePage() {
   const { t, isInitialized, isLoading } = useTranslation();
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const { canShow, markAsShown } = useFeedbackModalThrottle();
 
-  // 링크 생성 완료 시 3초 후 피드백 모달 표시
+  // 링크 생성 완료 시 3초 후 피드백 모달 표시 (24시간 제한 적용)
   const handleLinkGenerated = () => {
+    // 24시간 제한 확인
+    if (!canShow) {
+      console.log("[CreatePage] 피드백 모달 24시간 제한으로 표시 건너뜀");
+      return;
+    }
+
     setTimeout(() => {
       setShowFeedbackModal(true);
+      markAsShown(); // 모달 표시 시점에 타임스탬프 저장
     }, 3000);
   };
-  
+
   // 번역이 초기화되지 않았거나 로딩 중일 때 로딩 UI 표시
   if (!isInitialized || isLoading) {
     return (
@@ -30,31 +45,31 @@ export default function CreatePage() {
       </div>
     );
   }
-  
+
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
-      
+
       <div className="flex-1 container mx-auto max-w-4xl py-10 px-4 sm:px-6">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-baby-blue-dark to-baby-pink-dark bg-clip-text text-transparent">
-            {t('create.title')}
+            {t("create.title")}
           </h1>
           <p className="text-gray-600 mt-2">
-            {t('create.subtitle', { 
-              boyText: t('gender.boy'),
-              girlText: t('gender.girl')
+            {t("create.subtitle", {
+              boyText: t("gender.boy"),
+              girlText: t("gender.girl"),
             })}
           </p>
         </div>
-        
+
         <Card className="border-2 border-baby-blue-light/50 shadow-lg overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-baby-blue-light/10 to-baby-pink-light/10">
-            <CardTitle className="text-xl font-semibold">{t('create.cardTitle')}</CardTitle>
-            <CardDescription>
-              {t('create.cardDescription')}
-            </CardDescription>
-              <p className="text-xs text-red-500">{t('create.privacyNotice')}</p>
+            <CardTitle className="text-xl font-semibold">
+              {t("create.cardTitle")}
+            </CardTitle>
+            <CardDescription>{t("create.cardDescription")}</CardDescription>
+            <p className="text-xs text-red-500">{t("create.privacyNotice")}</p>
           </CardHeader>
           <CardContent>
             <RevealForm onLinkGenerated={handleLinkGenerated} />
