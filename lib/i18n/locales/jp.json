@@ -139,7 +139,19 @@
     "madeWithLove": "妊婦の皆様のために心を込めて作成いたしました",
     "quickLinks": "クイックリンク",
     "contact": "お問い合わせ",
-    "copyright": "HarborcatSoft. All rights reserved."
+    "copyright": "HarborcatSoft. All rights reserved.",
+    "whatsNew": "更新情報"
+  },
+  "changelog": {
+    "title": "更新情報",
+    "description": "Gender Reveal サービスの最新アップデートと改善内容を確認してください",
+    "backToHome": "ホームに戻る",
+    "noUpdates": "まだ更新情報はありません。",
+    "categories": {
+      "feature": "新機能",
+      "bugfix": "バグ修正",
+      "improvement": "改善"
+    }
   },
   "countdown": {
     "seconds": "秒",
@@ -274,6 +286,17 @@
       "3": "普通 😐",
       "4": "良い 😊",
       "5": "非常に満足！🎉"
+    }
+  },
+  "changelog": {
+    "title": "更新情報",
+    "description": "Gender Reveal サービスの最新アップデートと改善点を確認してください",
+    "backToHome": "ホームに戻る",
+    "noUpdates": "まだ更新情報はありません",
+    "categories": {
+      "feature": "新機能",
+      "improvement": "改善",
+      "bugfix": "バグ修正"
     }
   }
 }

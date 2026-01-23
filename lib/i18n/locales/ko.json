@@ -139,7 +139,19 @@
     "madeWithLove": "예비 부모님들을 위해 정성을 담아 만들었습니다",
     "quickLinks": "Quick Links",
     "contact": "Contact",
-    "copyright": "HarborcatSoft. All rights reserved."
+    "copyright": "HarborcatSoft. All rights reserved.",
+    "whatsNew": "업데이트 소식"
+  },
+  "changelog": {
+    "title": "업데이트 소식",
+    "description": "Gender Reveal 서비스의 최신 업데이트 및 개선사항을 확인하세요",
+    "backToHome": "홈으로 돌아가기",
+    "noUpdates": "아직 업데이트 소식이 없습니다.",
+    "categories": {
+      "feature": "새로운 기능",
+      "bugfix": "버그 수정",
+      "improvement": "개선사항"
+    }
   },
   "countdown": {
     "seconds": "초",
@@ -274,6 +286,17 @@
       "3": "보통이에요 😐",
       "4": "좋아요 😊",
       "5": "매우 만족해요! 🎉"
+    }
+  },
+  "changelog": {
+    "title": "업데이트 소식",
+    "description": "Gender Reveal 서비스의 최신 업데이트 및 개선사항을 확인하세요",
+    "backToHome": "홈으로 돌아가기",
+    "noUpdates": "아직 업데이트 소식이 없습니다",
+    "categories": {
+      "feature": "새로운 기능",
+      "improvement": "개선사항",
+      "bugfix": "버그 수정"
     }
   }
 }

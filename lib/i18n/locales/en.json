@@ -139,7 +139,19 @@
     "madeWithLove": "Made with love for expecting parents",
     "quickLinks": "Quick Links",
     "contact": "Contact",
-    "copyright": "HarborcatSoft. All rights reserved."
+    "copyright": "HarborcatSoft. All rights reserved.",
+    "whatsNew": "What's New"
+  },
+  "changelog": {
+    "title": "What's New",
+    "description": "Check out the latest updates and improvements to Gender Reveal service",
+    "backToHome": "Back to Home",
+    "noUpdates": "No updates yet.",
+    "categories": {
+      "feature": "New Feature",
+      "bugfix": "Bug Fix",
+      "improvement": "Improvement"
+    }
   },
   "countdown": {
     "seconds": "seconds",
@@ -274,6 +286,17 @@
       "3": "Neutral 😐",
       "4": "Satisfied 😊",
       "5": "Very Satisfied! 🎉"
+    }
+  },
+  "changelog": {
+    "title": "What's New",
+    "description": "Check out the latest updates and improvements to Gender Reveal service",
+    "backToHome": "Back to Home",
+    "noUpdates": "No updates yet",
+    "categories": {
+      "feature": "New Features",
+      "improvement": "Improvements",
+      "bugfix": "Bug Fixes"
     }
   }
 }
