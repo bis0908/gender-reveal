@@ -59,23 +59,23 @@ git clone <repository-url>
 cd gender-reveal
 ```
 
-2. 의존성 설치
+1. 의존성 설치
 
 ```bash
 npm install
 ```
 
-3. 환경 변수 설정
+1. 환경 변수 설정
 프로젝트 루트에 `.env.local` 파일을 생성하고 필요한 환경 변수를 설정합니다.
 (자세한 내용은 `ENV-SETUP.md` 파일 참조)
 
-4. 개발 서버 실행
+2. 개발 서버 실행
 
 ```bash
 npm run dev
 ```
 
-5. 브라우저에서 <http://localhost:3000> 접속
+1. 브라우저에서 <http://localhost:3000> 접속
 
 ## 환경 변수 설정
 
