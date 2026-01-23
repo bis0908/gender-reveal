@@ -30,7 +30,10 @@
       "Bash(npm audit:*)",
       "Bash(vercel ls:*)",
       "Bash(vercel logs:*)",
-      "Bash(vercel inspect:*)"
+      "Bash(vercel inspect:*)",
+      "Skill(superpowers-developing-for-claude-code:working-with-claude-code)",
+      "Bash(ls:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []
