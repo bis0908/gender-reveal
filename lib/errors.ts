@@ -12,11 +12,14 @@ export enum ErrorCode {
   FORBIDDEN = "FORBIDDEN",
   NOT_FOUND = "NOT_FOUND",
   VALIDATION_ERROR = "VALIDATION_ERROR",
+  ALREADY_VOTED = "ALREADY_VOTED",
+  RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
 
   // 서버 에러 (5xx)
   INTERNAL_ERROR = "INTERNAL_ERROR",
   JWT_ERROR = "JWT_ERROR",
   DATABASE_ERROR = "DATABASE_ERROR",
+  REDIS_ERROR = "REDIS_ERROR",
 }
 
 // 에러 응답 인터페이스
@@ -81,6 +84,23 @@ export const createJWTError = (
 export const createInternalError = (
   message: string = "서버 오류가 발생했습니다.",
 ) => new AppError(ErrorCode.INTERNAL_ERROR, message, 500);
+
+export const createNotFoundError = (
+  message: string = "리소스를 찾을 수 없습니다.",
+) => new AppError(ErrorCode.NOT_FOUND, message, 404);
+
+export const createAlreadyVotedError = (previousVote: string) =>
+  new AppError(ErrorCode.ALREADY_VOTED, "이미 투표하셨습니다.", 400, {
+    previousVote,
+  });
+
+export const createRateLimitError = (
+  message: string = "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+) => new AppError(ErrorCode.RATE_LIMIT_EXCEEDED, message, 429);
+
+export const createRedisError = (
+  message: string = "Redis 연결 오류가 발생했습니다.",
+) => new AppError(ErrorCode.REDIS_ERROR, message, 500);
 
 /**
  * NextResponse로 에러 응답 생성
