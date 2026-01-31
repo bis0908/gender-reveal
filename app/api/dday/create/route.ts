@@ -34,14 +34,10 @@ const REDIS_KEYS = {
 };
 
 /**
- * D-Day 토큰 만료 시간 계산 (scheduledAt + 7일)
+ * D-Day 토큰 만료 시간 (고정 30일)
+ * scheduledAt과 무관하게 생성 시점부터 30일간 유효
  */
-function calculateTokenExpiration(scheduledAt: string): string {
-  const scheduledDate = new Date(scheduledAt);
-  scheduledDate.setDate(scheduledDate.getDate() + 7);
-  const diffSeconds = Math.floor((scheduledDate.getTime() - Date.now()) / 1000);
-  return `${diffSeconds}s`;
-}
+const TOKEN_EXPIRATION = "30d";
 
 /**
  * Redis TTL 계산 (scheduledAt + 30일)
@@ -131,7 +127,6 @@ export async function POST(request: Request) {
 
     // 7. JWT 토큰 생성
     const JWT_SECRET = getEncodedSecret();
-    const tokenExpiration = calculateTokenExpiration(data.scheduledAt);
 
     // 카운트다운 토큰 (친지용 - reveal 페이지에 필요한 전체 정보 포함)
     const countdownTokenData = {
@@ -153,7 +148,7 @@ export async function POST(request: Request) {
     const countdownToken = await new jose.SignJWT(countdownTokenData)
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime(tokenExpiration)
+      .setExpirationTime(TOKEN_EXPIRATION)
       .sign(JWT_SECRET);
 
     // 리빌 토큰 (부모용 - 기존 형식 유지)
@@ -177,7 +172,7 @@ export async function POST(request: Request) {
     )
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime(tokenExpiration)
+      .setExpirationTime(TOKEN_EXPIRATION)
       .sign(JWT_SECRET);
 
     logger.info("D-Day 예약 생성 성공", {
