@@ -74,12 +74,15 @@ export default function CountdownPage() {
         const res = await fetch("/api/verify-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify({ token, purpose: "countdown" }),
         });
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || t("dday.tokenVerifyFailed"));
+          const errorMessage =
+            data?.error?.message ||
+            (typeof data?.error === "string" ? data.error : undefined);
+          throw new Error(errorMessage || t("dday.tokenVerifyFailed"));
         }
 
         const response = await res.json();
@@ -106,7 +109,7 @@ export default function CountdownPage() {
         const scheduledDate = new Date(payload.scheduledAt);
         if (isPast(scheduledDate)) {
           // D-Day가 지났으면 바로 reveal 페이지로 이동
-          router.replace(`/reveal?token=${token}`);
+          router.replace(`/reveal?token=${token}&source=countdown`);
           return;
         } else {
           setPageState("countdown");
@@ -139,7 +142,7 @@ export default function CountdownPage() {
   const handleExpired = useCallback(() => {
     // 카운트다운 종료 시 바로 리다이렉트
     setPageState("loading");
-    router.replace(`/reveal?token=${token}`);
+    router.replace(`/reveal?token=${token}&source=countdown`);
   }, [router, token]);
 
   // 투표 핸들러

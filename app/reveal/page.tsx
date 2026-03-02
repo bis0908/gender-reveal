@@ -20,6 +20,7 @@ function RevealContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const demoId = searchParams.get("demo");
+  const source = searchParams.get("source");
 
   const [revealData, setRevealData] = useState<RevealData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,18 +106,50 @@ function RevealContent() {
 
     const fetchData = async () => {
       try {
-        // 서버 API를 통해 토큰 검증
-        const response = await fetch("/api/verify-token", {
+        // source=countdown이면 전용 엔드포인트 사용, 그 외에는 verify-token 사용
+        const isCountdownSource = source === "countdown";
+        const apiUrl = isCountdownSource ? "/api/dday/reveal-data" : "/api/verify-token";
+        const apiBody = isCountdownSource
+          ? { token }
+          : { token, purpose: "reveal" };
+
+        const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify(apiBody),
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          setError(errorData.error || t("reveal.error.verificationFailed"));
+          const errorData = await response.json().catch(() => null);
+          const serverMessage =
+            errorData?.error?.message ||
+            (typeof errorData?.error === "string" ? errorData.error : undefined);
+          const errorCode =
+            typeof errorData?.error?.code === "string"
+              ? errorData.error.code
+              : undefined;
+
+          if (response.status === 403 || errorCode === "FORBIDDEN") {
+            // 토큰 타입 불일치 (countdown 토큰으로 verify-token 접근 시)
+            if (typeof serverMessage === "string" && serverMessage.includes("카운트다운 토큰")) {
+              setError(t("reveal.error.wrongTokenType") || serverMessage);
+            } else {
+              const revealAt = errorData?.error?.details?.revealAt;
+              if (typeof revealAt === "string") {
+                setError(
+                  t("reveal.error.notOpenedYetWithTime", {
+                    revealAt: new Date(revealAt).toLocaleString(),
+                  }),
+                );
+              } else {
+                setError(t("reveal.error.notOpenedYet"));
+              }
+            }
+          } else {
+            setError(serverMessage || t("reveal.error.verificationFailed"));
+          }
           setIsLoading(false);
           return;
         }
@@ -138,7 +171,7 @@ function RevealContent() {
     };
 
     fetchData();
-  }, [token, demoId, language, t, loadDemoData]);
+  }, [token, demoId, language, t, loadDemoData, source]);
 
   // 데모 모드에서 언어 변경 시 데이터 재로드
   useEffect(() => {

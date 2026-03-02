@@ -1,10 +1,9 @@
-/**
- * 표준화된 에러 타입 및 핸들러
+﻿/**
+ * 애플리케이션 공통 에러 타입 및 생성 유틸
  */
 
 import { NextResponse } from "next/server";
 
-// 에러 코드 정의
 export enum ErrorCode {
   // 클라이언트 에러 (4xx)
   BAD_REQUEST = "BAD_REQUEST",
@@ -22,7 +21,6 @@ export enum ErrorCode {
   REDIS_ERROR = "REDIS_ERROR",
 }
 
-// 에러 응답 인터페이스
 export interface ErrorResponse {
   error: {
     code: ErrorCode;
@@ -32,9 +30,6 @@ export interface ErrorResponse {
   success: false;
 }
 
-/**
- * 커스텀 에러 클래스
- */
 export class AppError extends Error {
   constructor(
     public code: ErrorCode,
@@ -64,15 +59,17 @@ export class AppError extends Error {
   }
 }
 
-/**
- * 에러 팩토리 함수들
- */
 export const createBadRequestError = (message: string, details?: unknown) =>
   new AppError(ErrorCode.BAD_REQUEST, message, 400, details);
 
 export const createUnauthorizedError = (
   message: string = "인증이 필요합니다.",
 ) => new AppError(ErrorCode.UNAUTHORIZED, message, 401);
+
+export const createForbiddenError = (
+  message: string = "접근이 금지되었습니다.",
+  details?: unknown,
+) => new AppError(ErrorCode.FORBIDDEN, message, 403, details);
 
 export const createValidationError = (message: string, details?: unknown) =>
   new AppError(ErrorCode.VALIDATION_ERROR, message, 400, details);
@@ -102,18 +99,12 @@ export const createRedisError = (
   message: string = "Redis 연결 오류가 발생했습니다.",
 ) => new AppError(ErrorCode.REDIS_ERROR, message, 500);
 
-/**
- * NextResponse로 에러 응답 생성
- */
 export function createErrorResponse(
   error: AppError,
 ): NextResponse<ErrorResponse> {
   return NextResponse.json(error.toJSON(), { status: error.statusCode });
 }
 
-/**
- * 일반 Error를 AppError로 변환
- */
 export function normalizeError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error;

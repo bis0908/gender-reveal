@@ -28,7 +28,7 @@ export function RevealedRedirect({ revealToken }: RevealedRedirectProps) {
       </h2>
 
       <Link
-        href={`/reveal?token=${revealToken}`}
+        href={`/reveal?token=${revealToken}&source=countdown`}
         className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg text-white
           bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500
           shadow-lg shadow-purple-500/30

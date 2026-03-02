@@ -1,4 +1,4 @@
-/**
+﻿/**
  * D-Day 예약 생성 API
  * POST /api/dday/create
  */
@@ -23,19 +23,19 @@ import {
   ddayCreateSchema,
 } from "@/lib/schemas/dday-schema";
 
-// Rate limiting 설정: IP당 1분 내 5회 생성 제한
-const RATE_LIMIT_WINDOW = 60; // 초
+// Rate limiting 설정: IP당 1분에 5회 생성 제한
+const RATE_LIMIT_WINDOW = 60;
 const RATE_LIMIT_MAX_REQUESTS = 5;
 
-// Redis 키 접두사
+// Redis 키 접두어
 const REDIS_KEYS = {
   vote: (revealId: string) => `vote:${revealId}`,
+  revealData: (revealId: string) => `reveal:${revealId}:data`,
   rateLimit: (ip: string) => `ratelimit:create:${ip}`,
 };
 
 /**
  * D-Day 토큰 만료 시간 (고정 30일)
- * scheduledAt과 무관하게 생성 시점부터 30일간 유효
  */
 const TOKEN_EXPIRATION = "30d";
 
@@ -43,7 +43,15 @@ const TOKEN_EXPIRATION = "30d";
  * Redis TTL 계산 (scheduledAt + 30일)
  */
 function calculateRedisTTL(scheduledAt: string): number {
+  if (!scheduledAt) {
+    throw createBadRequestError("예약 시간이 필요합니다.");
+  }
+
   const scheduledDate = new Date(scheduledAt);
+  if (Number.isNaN(scheduledDate.getTime())) {
+    throw createBadRequestError("예약 시간 형식이 올바르지 않습니다.");
+  }
+
   const ttlEnd = new Date(scheduledDate);
   ttlEnd.setDate(ttlEnd.getDate() + 30);
   return Math.floor((ttlEnd.getTime() - Date.now()) / 1000);
@@ -53,6 +61,10 @@ function calculateRedisTTL(scheduledAt: string): number {
  * Rate limiting 확인
  */
 async function checkRateLimit(ip: string): Promise<boolean> {
+  if (!ip) {
+    return false;
+  }
+
   const redis = await getRedisClient();
   const key = REDIS_KEYS.rateLimit(ip);
 
@@ -70,6 +82,10 @@ async function checkRateLimit(ip: string): Promise<boolean> {
 async function generateUniqueRevealId(
   redis: Awaited<ReturnType<typeof getRedisClient>>,
 ): Promise<string> {
+  if (!redis) {
+    throw createRedisError("Redis 클라이언트가 필요합니다.");
+  }
+
   const MAX_RETRIES = 3;
 
   for (let i = 0; i < MAX_RETRIES; i++) {
@@ -119,17 +135,18 @@ export async function POST(request: Request) {
 
     // 5. Redis TTL 계산
     const redisTTL = calculateRedisTTL(data.scheduledAt);
+    if (redisTTL <= 0) {
+      throw createBadRequestError("예약 시간이 만료되었습니다.");
+    }
 
     // 6. Redis에 투표 데이터 초기화
     const voteKey = REDIS_KEYS.vote(revealId);
     await redis.hSet(voteKey, { prince: 0, princess: 0 });
     await redis.expire(voteKey, redisTTL);
 
-    // 7. JWT 토큰 생성
-    const JWT_SECRET = getEncodedSecret();
-
-    // 카운트다운 토큰 (친지용 - reveal 페이지에 필요한 전체 정보 포함)
-    const countdownTokenData = {
+    // 6-1. Redis에 공개 데이터 저장
+    const revealDataKey = REDIS_KEYS.revealData(revealId);
+    const revealData = {
       motherName: data.motherName,
       fatherName: data.fatherName,
       babyName: data.babyName,
@@ -141,6 +158,17 @@ export async function POST(request: Request) {
       isMultiple: data.isMultiple,
       babiesInfo: data.babiesInfo,
       scheduledAt: data.scheduledAt,
+      revealId,
+    };
+    await redis.set(revealDataKey, JSON.stringify(revealData), {
+      EX: redisTTL,
+    });
+
+    // 7. JWT 토큰 생성
+    const JWT_SECRET = getEncodedSecret();
+
+    // 카운트다운 토큰 (민감정보 제외)
+    const countdownTokenData = {
       revealId,
       type: "countdown",
     };
@@ -151,25 +179,13 @@ export async function POST(request: Request) {
       .setExpirationTime(TOKEN_EXPIRATION)
       .sign(JWT_SECRET);
 
-    // 리빌 토큰 (부모용 - 기존 형식 유지)
+    // 리빌 토큰 (민감정보 제외)
     const revealTokenData = {
-      motherName: data.motherName,
-      fatherName: data.fatherName,
-      babyName: data.babyName,
-      gender: data.gender,
-      dueDate: data.dueDate,
-      message: data.message,
-      animationType: data.animationType,
-      countdownTime: data.countdownTime,
-      isMultiple: data.isMultiple,
-      babiesInfo: data.babiesInfo,
-      scheduledAt: data.scheduledAt,
       revealId,
+      type: "reveal",
     };
 
-    const revealToken = await new jose.SignJWT(
-      revealTokenData as unknown as Record<string, unknown>,
-    )
+    const revealToken = await new jose.SignJWT(revealTokenData)
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime(TOKEN_EXPIRATION)
