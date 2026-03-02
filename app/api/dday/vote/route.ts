@@ -4,6 +4,7 @@
  * POST /api/dday/vote - 투표 제출
  */
 
+import { randomUUID } from "node:crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import { parseRequestBody } from "@/lib/api-utils";
 import {
@@ -21,6 +22,7 @@ import { voteQuerySchema, voteSchema } from "@/lib/schemas/dday-schema";
 // Rate limiting 설정: IP당 1분 내 10회 투표 제한
 const VOTE_RATE_LIMIT_WINDOW = 60;
 const VOTE_RATE_LIMIT_MAX = 10;
+const VOTER_COOKIE_NAME = "gr-voter-id";
 
 // Redis 키 접두사
 const REDIS_KEYS = {
@@ -30,6 +32,44 @@ const REDIS_KEYS = {
   revealed: (revealId: string) => `reveal:${revealId}:revealed`,
   rateLimit: (ip: string) => `ratelimit:vote:${ip}`,
 };
+
+function isValidUuid(value: string): boolean {
+  if (!value) {
+    return false;
+  }
+
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+}
+
+function resolveServerVoterId(request: NextRequest): {
+  voterId: string;
+  shouldSetCookie: boolean;
+} {
+  if (!request) {
+    throw createBadRequestError("요청 정보가 필요합니다.");
+  }
+
+  const cookieVoterId = request.cookies.get(VOTER_COOKIE_NAME)?.value;
+  if (cookieVoterId && isValidUuid(cookieVoterId)) {
+    return {
+      voterId: cookieVoterId,
+      shouldSetCookie: false,
+    };
+  }
+
+  const generatedVoterId =
+    typeof globalThis.crypto !== "undefined" &&
+    typeof globalThis.crypto.randomUUID === "function"
+      ? globalThis.crypto.randomUUID()
+      : randomUUID();
+
+  return {
+    voterId: generatedVoterId,
+    shouldSetCookie: true,
+  };
+}
 
 /**
  * GET: 투표 현황 조회
@@ -137,11 +177,12 @@ export async function POST(request: NextRequest) {
     }
 
     const { revealId, vote, deviceId } = parseResult.data;
+    const { voterId, shouldSetCookie } = resolveServerVoterId(request);
 
     // 4. Redis 연결
     const redis = await getRedisClient();
     const voteKey = REDIS_KEYS.vote(revealId);
-    const voterKey = REDIS_KEYS.voter(revealId, deviceId);
+    const voterKey = REDIS_KEYS.voter(revealId, voterId);
 
     // 5. 투표 데이터 존재 확인
     const exists = await redis.exists(voteKey);
@@ -188,14 +229,29 @@ export async function POST(request: NextRequest) {
     logger.info("투표 성공", {
       revealId,
       vote,
-      deviceId: deviceId.slice(0, 8),
+      voterId: voterId.slice(0, 8),
+      clientDeviceId: deviceId.slice(0, 8),
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: "투표가 완료되었습니다. 감사합니다!",
       votes,
     });
+
+    if (shouldSetCookie) {
+      response.cookies.set({
+        name: VOTER_COOKIE_NAME,
+        value: voterId,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: voterTTL,
+      });
+    }
+
+    return response;
   } catch (error) {
     const appError = normalizeError(error);
     logger.error("투표 제출 실패", { endpoint: "/api/dday/vote" }, appError);
