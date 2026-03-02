@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useParams, useRouter } from "next/navigation";
 import CountdownPage from "@/app/countdown/[token]/page";
 import { useVoteStatus } from "@/hooks/useVoteStatus";
@@ -14,6 +14,18 @@ jest.mock("@/hooks/useVoteStatus");
 jest.mock("@/hooks/useDeviceId", () => ({
   useDeviceId: () => "mock-device-id",
 }));
+jest.mock("@/lib/i18n/context", () => {
+  const t = (key: string) => key;
+  return {
+    useTranslation: () => ({
+      t,
+      language: "ko",
+      changeLanguage: jest.fn(),
+      isLoading: false,
+      isInitialized: true,
+    }),
+  };
+});
 
 // Mock internal components to simplify testing
 jest.mock("@/app/countdown/[token]/components/CountdownTimer", () => ({
@@ -34,7 +46,7 @@ const mockRouter = {
 
 const mockUseVoteStatus = useVoteStatus as jest.Mock;
 
-describe("CountdownPage Redirection Logic", () => {
+describe("카운트다운 페이지 리다이렉션 로직", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -59,8 +71,8 @@ describe("CountdownPage Redirection Logic", () => {
     global.fetch = jest.fn();
   });
 
-  it("REDIRECTS to /reveal if verification shows D-Day is past (Initial Load)", async () => {
-    // GIVEN: scheduledAt is in the past
+  it("Given 검증 결과 D-Day가 지났을 때 When 초기 로딩하면 Then /reveal로 리다이렉트해야 한다", async () => {
+    // Given: scheduledAt이 과거
     const pastDate = new Date(Date.now() - 10000).toISOString();
 
     (global.fetch as jest.Mock).mockResolvedValue({
@@ -75,12 +87,10 @@ describe("CountdownPage Redirection Logic", () => {
       }),
     });
 
-    // WHEN: Component renders
-    await act(async () => {
-      render(<CountdownPage />);
-    });
+    // When: 컴포넌트 렌더링
+    render(<CountdownPage />);
 
-    // THEN: Redirect should happen immediately after token verification
+    // Then: 토큰 검증 직후 리다이렉트
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith(
         "/reveal?token=test-token",
@@ -88,8 +98,8 @@ describe("CountdownPage Redirection Logic", () => {
     });
   });
 
-  it("RENDERS countdown if verification shows D-Day is future", async () => {
-    // GIVEN: scheduledAt is in the future
+  it("Given 검증 결과 D-Day가 미래일 때 When 초기 로딩하면 Then 카운트다운이 렌더링되어야 한다", async () => {
+    // Given: scheduledAt이 미래
     const futureDate = new Date(Date.now() + 100000).toISOString();
 
     (global.fetch as jest.Mock).mockResolvedValue({
@@ -104,20 +114,18 @@ describe("CountdownPage Redirection Logic", () => {
       }),
     });
 
-    // WHEN: Component renders
-    await act(async () => {
-      render(<CountdownPage />);
-    });
+    // When: 컴포넌트 렌더링
+    render(<CountdownPage />);
 
-    // THEN: Should show countdown timer and NOT redirect
+    // Then: 카운트다운 표시, 리다이렉트 없음
     await waitFor(() => {
       expect(screen.getByTestId("countdown-timer")).toBeInTheDocument();
     });
     expect(mockRouter.replace).not.toHaveBeenCalled();
   });
 
-  it("REDIRECTS to /reveal when CountdownTimer calls onExpired", async () => {
-    // GIVEN: Page is loaded with future date
+  it("Given 미래 시각으로 페이지가 열린 상태에서 When CountdownTimer가 onExpired를 호출하면 Then /reveal로 리다이렉트해야 한다", async () => {
+    // Given: 미래 시각으로 페이지 로드
     const futureDate = new Date(Date.now() + 100000).toISOString();
 
     (global.fetch as jest.Mock).mockResolvedValue({
@@ -132,20 +140,18 @@ describe("CountdownPage Redirection Logic", () => {
       }),
     });
 
-    await act(async () => {
-      render(<CountdownPage />);
+    render(<CountdownPage />);
+
+    // Given: 카운트다운 렌더링 확인
+    await waitFor(() => {
+      expect(screen.getByTestId("countdown-timer")).toBeInTheDocument();
     });
 
-    // Ensure it loaded
-    expect(screen.getByTestId("countdown-timer")).toBeInTheDocument();
-
-    // WHEN: Timer expires (simulate onExpired callback)
+    // When: 타이머 만료(onExpired) 시뮬레이션
     const expireButton = screen.getByTestId("expire-button");
-    act(() => {
-      expireButton.click();
-    });
+    fireEvent.click(expireButton);
 
-    // THEN: Should redirect
+    // Then: 리다이렉트
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith(
         "/reveal?token=test-token",
