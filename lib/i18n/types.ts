@@ -184,6 +184,15 @@ export interface Translations {
     revealedTitle: string;
     goToCelebrate: string;
   };
+
+  // 공개 페이지(부분 타입)
+  reveal?: {
+    error?: {
+      notOpenedYet?: string;
+      notOpenedYetWithTime?: string;
+      wrongTokenType?: string;
+    };
+  };
 }
 
 // 언어 정보

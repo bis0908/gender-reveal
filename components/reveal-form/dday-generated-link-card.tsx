@@ -166,7 +166,7 @@ export function DDayGeneratedLinkCard({
           label="🎁 성별 공개 링크"
           icon={<PartyPopper className="h-4 w-4 text-pink-600" />}
           link={revealLink}
-          description="D-Day에 이 링크로 성별을 공개하세요! (부모님 전용)"
+          description="링크는 지금 바로 전달 가능하며, D-Day 이전 접근은 서버에서 자동 차단됩니다. (부모님 전용)"
           color="pink"
         />
       </div>
@@ -179,7 +179,7 @@ export function DDayGeneratedLinkCard({
         <ol className="text-sm text-gray-600 mt-2 space-y-1 ml-4 list-decimal">
           <li>카운트다운 링크를 친구와 가족에게 공유하세요</li>
           <li>D-Day까지 투표를 받으세요</li>
-          <li>D-Day가 되면 성별 공개 링크로 접속하여 공개하세요!</li>
+          <li>성별 공개 링크는 즉시 공유하되, 실제 공개는 D-Day 시점 이후에만 가능합니다</li>
         </ol>
       </div>
     </div>

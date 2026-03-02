@@ -105,7 +105,7 @@ export function RevealForm({ onLinkGenerated }: RevealFormProps = {}) {
           );
         }
 
-        const { countdownToken, revealToken, revealId } = responseData;
+        const { countdownToken, revealToken } = responseData;
 
         // 링크 생성
         const countdownLink = `${window.location.origin}/countdown/${countdownToken}`;
@@ -119,7 +119,8 @@ export function RevealForm({ onLinkGenerated }: RevealFormProps = {}) {
 
         toast({
           title: "D-Day 예약 완료!",
-          description: "카운트다운 링크와 공개 링크가 생성되었습니다.",
+          description:
+            "카운트다운 링크와 공개 링크가 생성되었습니다. 공개 링크는 D-Day 이전에 서버에서 차단됩니다.",
           variant: "default",
         });
 
