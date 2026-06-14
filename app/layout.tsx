@@ -90,9 +90,11 @@ export default function RootLayout({
 			</head>
 			<body className={`${montserrat.variable} font-sans antialiased`} suppressHydrationWarning>
 				<LanguageProvider>
+					{/* 라이트 전용 제품 — forcedTheme로 잔존 localStorage(theme)·시스템 다크 선호를 무시하고 항상 라이트로 렌더 */}
 					<ThemeProvider
 						attribute="class"
 						defaultTheme="light"
+						forcedTheme="light"
 						enableSystem={false}
 						disableTransitionOnChange
 					>
