@@ -1,0 +1,9 @@
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+overrides:
+  postcss: 8.5.14             # 필수(next가 8.4.31 고정) — 빌드타임
+  uuid: '>=11.1.1 <12'       # 런타임(resend→svix) — 메이저 11.x로 제한
+  qs: '>=6.15.2'             # 런타임(googleapis)
+  ws: '>=8.20.1'            # dev(jest-jsdom)
+  brace-expansion: '>=5.0.6' # dev/lint(eslint)
