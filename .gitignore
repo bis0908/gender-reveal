@@ -268,3 +268,6 @@ _bmad*
 *.tgz
 
 miscs/**
+
+docs/
+/package-lock.json.bak*
