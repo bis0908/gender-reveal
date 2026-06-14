@@ -93,34 +93,23 @@
   );
 }
 
-/* 텍스트 공지 */
-.announcement {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
+/* 공지 텍스트는 공용 AnnouncementText(framer-motion) 로 위임했으므로
+   기존 CSS-module 공지/색상 규칙(.announcement/.announcementText/.textBoy/.textGirl)은
+   잔재 방지를 위해 제거했다. */
 
-.announcementText {
-  font-size: 7rem;
-  text-align: center;
-  font-weight: bold;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}
+/* 감속 모드: 낙하/흔들림 모션을 제거하고 즉시 표시한다(멀미 유발 모션 최소화).
+   forwards 키프레임이 적용되지 않으므로 최종 상태(opacity)를 명시한다. */
+@media (prefers-reduced-motion: reduce) {
+  .fallingItem,
+  .swing {
+    animation: none;
+    /* --target-opacity 변수가 없으면 기본 0.85 로 정적 표시 */
+    opacity: var(--target-opacity, 0.85);
+    /* 회전 없이 화면 내 정적 위치로 노출 */
+    transform: translateZ(0);
+  }
 
-.textBoy {
-  color: #1e3a8a; /* baby-blue-dark */
-}
-
-.textGirl {
-  color: #9f1239; /* baby-pink-dark */
-}
-
-/* 모바일 반응형 */
-@media (min-width: 640px) {
-  .announcementText {
-    font-size: 9rem;
+  .background {
+    transition: none;
   }
 }

@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { useTranslation } from '@/lib/i18n/context';
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n/context";
 
 interface CountdownTimerProps {
   seconds: number;
   onComplete: () => void;
-  gender?: 'boy' | 'girl';
+  gender?: "boy" | "girl";
   babyName?: string;
 }
 
-export function CountdownTimer({ seconds, onComplete, gender, babyName }: CountdownTimerProps) {
+export function CountdownTimer({
+  seconds,
+  onComplete,
+  gender,
+  babyName,
+}: CountdownTimerProps) {
   const { t } = useTranslation();
+  const shouldReduceMotion = useReducedMotion();
   const [timeLeft, setTimeLeft] = useState(seconds);
   const [isActive, setIsActive] = useState(true);
 
@@ -30,30 +36,29 @@ export function CountdownTimer({ seconds, onComplete, gender, babyName }: Countd
   }, [timeLeft, isActive, onComplete]);
 
   // 성별에 관계없이 중립적인 색상 사용
-  const colorClass = 'text-baby-neutral';
+  const colorClass = "text-baby-neutral";
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -20 }}
+        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="text-2xl sm:text-3xl font-bold text-baby-neutral mb-8 text-center"
       >
-        {t('countdown.revealMessage', { 
-          babyName: babyName || t('countdown.defaultBabyName') 
+        {t("countdown.revealMessage", {
+          babyName: babyName || t("countdown.defaultBabyName"),
         })}
       </motion.div>
-      
+
       <motion.div
         key={timeLeft}
-        initial={{ scale: 2, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0, opacity: 0 }}
+        initial={shouldReduceMotion ? { opacity: 0 } : { scale: 2, opacity: 0 }}
+        animate={shouldReduceMotion ? { opacity: 1 } : { scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
         className={`text-9xl font-bold ${colorClass}`}
       >
-        {timeLeft > 0 ? timeLeft : ''}
+        {timeLeft > 0 ? timeLeft : ""}
       </motion.div>
     </div>
   );

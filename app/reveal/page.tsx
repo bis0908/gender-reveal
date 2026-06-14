@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { REVEAL_TIMING } from "@/lib/animations";
 import { useTranslation } from "@/lib/i18n/context";
 import type { Language } from "@/lib/i18n/types";
 import type { Gender, RevealData } from "@/lib/types";
@@ -35,6 +36,9 @@ function RevealContent() {
   const resultSectionRef = useRef<HTMLDivElement>(null);
   // 이전 언어 추적을 위한 ref
   const prevLanguageRef = useRef<Language>(language);
+  // 애니메이션 완료 처리 1회성 가드 (정상 콜백 + 백업 타이머 중복 발화 방지)
+  // 카운트다운 완료 시점에 리셋되어 첫째/다음 아기/재시작 흐름을 일관되게 처리한다.
+  const completionGuardRef = useRef(false);
 
   // 다태아인지 확인하는 헬퍼 함수
   const isMultipleBabies =
@@ -57,7 +61,7 @@ function RevealContent() {
   };
 
   // 다음 아기로 넘어가는 함수
-  const goToNextBaby = () => {
+  const goToNextBaby = useCallback(() => {
     if (isMultipleBabies && revealData?.babiesInfo) {
       if (currentBabyIndex < revealData.babiesInfo.length - 1) {
         setIsRevealed(false);
@@ -69,7 +73,7 @@ function RevealContent() {
     } else {
       setIsFinished(true);
     }
-  };
+  }, [isMultipleBabies, revealData, currentBabyIndex]);
 
   // 데모 데이터 로드 함수
   const loadDemoData = useCallback(
@@ -108,7 +112,9 @@ function RevealContent() {
       try {
         // source=countdown이면 전용 엔드포인트 사용, 그 외에는 verify-token 사용
         const isCountdownSource = source === "countdown";
-        const apiUrl = isCountdownSource ? "/api/dday/reveal-data" : "/api/verify-token";
+        const apiUrl = isCountdownSource
+          ? "/api/dday/reveal-data"
+          : "/api/verify-token";
         const apiBody = isCountdownSource
           ? { token }
           : { token, purpose: "reveal" };
@@ -125,7 +131,9 @@ function RevealContent() {
           const errorData = await response.json().catch(() => null);
           const serverMessage =
             errorData?.error?.message ||
-            (typeof errorData?.error === "string" ? errorData.error : undefined);
+            (typeof errorData?.error === "string"
+              ? errorData.error
+              : undefined);
           const errorCode =
             typeof errorData?.error?.code === "string"
               ? errorData.error.code
@@ -133,7 +141,10 @@ function RevealContent() {
 
           if (response.status === 403 || errorCode === "FORBIDDEN") {
             // 토큰 타입 불일치 (countdown 토큰으로 verify-token 접근 시)
-            if (typeof serverMessage === "string" && serverMessage.includes("카운트다운 토큰")) {
+            if (
+              typeof serverMessage === "string" &&
+              serverMessage.includes("카운트다운 토큰")
+            ) {
               setError(t("reveal.error.wrongTokenType") || serverMessage);
             } else {
               const revealAt = errorData?.error?.details?.revealAt;
@@ -186,78 +197,8 @@ function RevealContent() {
     }
   }, [language, demoId, loadDemoData]);
 
-  const handleStartReveal = () => {
-    setHasStartedOnce(true);
-    setStartCountdown(true);
-  };
-
-  const handleCountdownComplete = () => {
-    setIsRevealed(true);
-  };
-
-  const handleAnimationComplete = () => {
-    // 이미 다음 단계로 진행 중인지 확인하는 플래그 변수
-    let isProcessing = false;
-
-    // 애니메이션 종료 후 다음 단계 진행 함수
-    const processAfterAnimation = () => {
-      // 이미 처리 중이면 중복 실행 방지
-      if (isProcessing) return;
-      isProcessing = true;
-
-      // 다태아 처리
-      if (isMultipleBabies && revealData?.babiesInfo) {
-        // 마지막 아기인지 확인
-        const isLastBaby = currentBabyIndex >= revealData.babiesInfo.length - 1;
-
-        if (isLastBaby) {
-          // 마지막 아기 - 결과 화면으로 이동
-          setTimeout(() => {
-            setIsFinished(true);
-
-            // 결과 영역이 추가된 후에 스크롤
-            setTimeout(() => {
-              if (resultSectionRef.current) {
-                resultSectionRef.current.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                });
-                highlightResultSection();
-              }
-            }, 500);
-          }, 4000);
-        } else {
-          // 다음 아기로 이동
-
-          setTimeout(() => {
-            goToNextBaby();
-          }, 4000);
-        }
-      } else {
-        // 단일 아기 - 결과 화면으로 이동
-        setTimeout(() => {
-          setIsFinished(true);
-
-          // 결과 영역이 추가된 후에 스크롤
-          setTimeout(() => {
-            if (resultSectionRef.current) {
-              resultSectionRef.current.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-              highlightResultSection();
-            }
-          }, 500);
-        }, 4000);
-      }
-    };
-
-    // 즉시 처리 시작
-    processAfterAnimation();
-  };
-
-  // 결과 영역 강조 효과 함수
-  const highlightResultSection = () => {
+  // 결과 영역 강조 효과 함수 (ref 만 사용 → 의존성 없음)
+  const highlightResultSection = useCallback(() => {
     if (!resultSectionRef.current) return;
 
     // 스크롤 후 약간의 딜레이를 두고 강조 효과 추가
@@ -273,9 +214,65 @@ function RevealContent() {
         resultSectionRef.current.classList.remove("result-highlight");
       }, 1000);
     }, 600);
-  };
+  }, []);
 
-  const handleRestart = () => {
+  // 결과 화면으로 전환 후 스크롤 + 강조
+  const finishAndScrollToResult = useCallback(() => {
+    setIsFinished(true);
+
+    // 결과 영역이 마운트된 후에 스크롤. 애니메이션 컨테이너는 위에 그대로 남아 스크롤이 통과할
+    // 거리를 확보하므로 자동 스크롤이 부드럽게 이어진다. 각 애니메이션은 화면 밖에서 자체 상한
+    // (fireworks 웨이브/배열 상한, CSS 1회 재생 등)대로 종료되어 무한 동작·메모리 증가가 없다.
+    setTimeout(() => {
+      if (resultSectionRef.current) {
+        resultSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+        highlightResultSection();
+      }
+    }, REVEAL_TIMING.SCROLL_TO_RESULT_DELAY_MS);
+  }, [highlightResultSection]);
+
+  const handleStartReveal = useCallback(() => {
+    setHasStartedOnce(true);
+    setStartCountdown(true);
+  }, []);
+
+  const handleCountdownComplete = useCallback(() => {
+    // 새 아기(또는 재시작)의 애니메이션이 시작되므로 완료 가드를 리셋한다.
+    completionGuardRef.current = false;
+    setIsRevealed(true);
+  }, []);
+
+  const handleAnimationComplete = useCallback(() => {
+    // 1회성 가드: 정상 onComplete 와 백업 타이머의 중복 발화를 방지한다.
+    if (completionGuardRef.current) return;
+    completionGuardRef.current = true;
+
+    const isLastBaby =
+      !isMultipleBabies ||
+      !revealData?.babiesInfo ||
+      currentBabyIndex >= revealData.babiesInfo.length - 1;
+
+    // 공지 뒤 잠시 후 다음 단계로 진행 (UX 보존)
+    setTimeout(() => {
+      if (isLastBaby) {
+        finishAndScrollToResult();
+      } else {
+        goToNextBaby();
+      }
+    }, REVEAL_TIMING.AFTER_ANIMATION_DELAY_MS);
+  }, [
+    isMultipleBabies,
+    revealData,
+    currentBabyIndex,
+    finishAndScrollToResult,
+    goToNextBaby,
+  ]);
+
+  const handleRestart = useCallback(() => {
+    completionGuardRef.current = false;
     setHasStartedOnce(false);
     setStartCountdown(false);
     setIsRevealed(false);
@@ -286,7 +283,7 @@ function RevealContent() {
       top: 0,
       behavior: "smooth",
     });
-  };
+  }, []);
 
   if (isLoading) {
     return <LoadingState />;

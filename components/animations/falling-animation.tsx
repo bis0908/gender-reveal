@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/lib/i18n/context";
+import { getGenderColors } from "@/lib/animation-colors";
 import type { Gender } from "@/lib/types";
+import { AnnouncementText } from "./announcement-text";
 import styles from "./falling-animation.module.css";
 
 interface FallingAnimationProps {
@@ -91,14 +92,23 @@ const girlIcons = [
   "🩰",
 ];
 
+// baby 토큰 외 강조색 — getGenderColors(baby 토큰 3단계)에 포함되지 않으므로
+// falling 이 자체 보유한다(공유 색상 모듈 범위를 넓히지 않는다).
+const ACCENT_COLOR: Record<Gender, string> = {
+  boy: "#1D4ED8",
+  girl: "#DB2777",
+};
+
 // 재사용 가능한 아이템 생성 함수 (성능 최적화: 30개 고정)
 const generateFallingItems = (gender: Gender) => {
   const newItems = [];
 
   const icons = gender === "boy" ? boyIcons : girlIcons;
-  const mainColor = gender === "boy" ? "#3B82F6" : "#EC4899";
-  const lightColor = gender === "boy" ? "#93C5FD" : "#F9A8D4";
-  const darkColor = gender === "boy" ? "#1D4ED8" : "#DB2777";
+  // 공유 색상 팔레트 채택: baby 토큰의 dark/DEFAULT 를 메인/라이트로 사용.
+  const palette = getGenderColors(gender);
+  const mainColor = palette.dark; // boy #3B82F6 / girl #EC4899
+  const lightColor = palette.DEFAULT; // boy #93C5FD / girl #F9A8D4
+  const accentColor = ACCENT_COLOR[gender]; // baby 토큰 외 강조색
 
   // 성능 최적화: 30개로 제한 (기존 50-80개)
   const count = 30;
@@ -121,7 +131,7 @@ const generateFallingItems = (gender: Gender) => {
     const size = 1 + Math.random() * 2; // 크기 다양화 (1-3rem)
     const colorRand = Math.random();
     const color =
-      colorRand > 0.6 ? mainColor : colorRand > 0.3 ? lightColor : darkColor;
+      colorRand > 0.6 ? mainColor : colorRand > 0.3 ? lightColor : accentColor;
     const opacity = 0.7 + Math.random() * 0.3; // 70-100% 불투명도
     const swing = Math.random() > 0.7; // 30%의 아이템에 흔들림 효과 추가
 
@@ -149,9 +159,21 @@ export function FallingAnimation({
   revealed,
   onComplete,
 }: FallingAnimationProps) {
-  const { t } = useTranslation();
   const [items, setItems] = useState<JSX.Element[]>([]);
+  // 애니메이션 시작(아이템 생성) 1회성 가드
   const animationStarted = useRef(false);
+  // onComplete 중복 발화 방지 가드
+  const callbackExecuted = useRef(false);
+  // 언마운트 후 setState/콜백 방지를 위한 마운트 상태 추적
+  const isMounted = useRef(true);
+
+  // 컴포넌트 마운트/언마운트 관리 (결과 표시 시 언마운트되므로 정리 필수)
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!revealed) {
@@ -169,9 +191,12 @@ export function FallingAnimation({
     const newItems = generateFallingItems(gender);
     setItems(newItems);
 
-    // Trigger callback after a delay
+    // 시각 종료 시점에 onComplete 를 정확히 1회만 발화.
     const timer = setTimeout(() => {
-      if (onComplete) onComplete();
+      // 이미 호출되었거나 언마운트된 경우 중단
+      if (callbackExecuted.current || !isMounted.current) return;
+      callbackExecuted.current = true;
+      onComplete?.();
     }, 4000);
 
     return () => clearTimeout(timer);
@@ -190,28 +215,12 @@ export function FallingAnimation({
       {/* 아이템들 - CSS 애니메이션 사용 */}
       {revealed && items}
 
-      {/* 텍스트 공지 */}
-      <div
-        className={styles.announcement}
-        style={{
-          opacity: revealed ? 1 : 0,
-          transform: revealed ? "scale(1)" : "scale(0.8)",
-          transition: "opacity 0.5s 1s, transform 0.5s 1s",
-        }}
-      >
-        <div
-          className={`${styles.announcementText} ${gender === "boy" ? styles.textBoy : styles.textGirl}`}
-          style={{
-            opacity: revealed ? 1 : 0,
-            transform: revealed ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.5s 1.5s, transform 0.5s 1.5s",
-          }}
-        >
-          {gender === "boy"
-            ? t("animations.boyAnnouncement")
-            : t("animations.girlAnnouncement")}
+      {/* 텍스트 공지 — 공용 AnnouncementText 채택(접근성 aria-live·감속 위임). */}
+      {revealed && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <AnnouncementText gender={gender} delay={1.5} />
         </div>
-      </div>
+      )}
     </div>
   );
 }

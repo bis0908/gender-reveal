@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "@/lib/i18n/context";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getGenderColors } from "@/lib/animation-colors";
 import type { Gender } from "@/lib/types";
+import { AnnouncementText } from "./announcement-text";
 import styles from "./fireworks-animation.module.css";
 
 interface FireworksAnimationProps {
@@ -10,6 +11,12 @@ interface FireworksAnimationProps {
   revealed: boolean;
   onComplete?: () => void;
 }
+
+// B1 발사 상한/누적 방지 상수
+const MAX_WAVES = 5; // 추가 로켓 발사 웨이브 상한 (이후 clearInterval)
+const MAX_ACTIVE_FIREWORKS = 24; // 폭발 효과 동시 보유 상한 (오래된 항목 prune)
+const WAVE_INTERVAL_MS = 2000; // 추가 발사 인터벌
+const FIREWORK_LIFETIME_MS = 2000; // 폭발 후 상태에서 제거되기까지의 수명
 
 // CSS 애니메이션 기반 파티클 컴포넌트
 const FireworkParticle = ({
@@ -53,6 +60,7 @@ const Firework = ({
   delay,
   particleCount = 30, // 성능 최적화: 30개로 제한 (기존 40-60)
   size = 1,
+  onFinished,
 }: {
   color: string;
   lightColor: string;
@@ -61,19 +69,29 @@ const Firework = ({
   delay: number;
   particleCount?: number;
   size?: number;
+  // 폭발 효과가 끝나 상태에서 제거돼야 할 때 호출 (B1 prune)
+  onFinished?: () => void;
 }) => {
   const [particles, setParticles] = useState<JSX.Element[]>([]);
   const [showFlash, setShowFlash] = useState(false);
 
   useEffect(() => {
-    // Create explosion after delay
-    const timer = setTimeout(() => {
+    // 언마운트 후 setState 방지용 플래그
+    let mounted = true;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    // 지연 후 폭발 생성
+    const explodeTimer = setTimeout(() => {
+      if (!mounted) return;
       const count = particleCount + Math.floor(Math.random() * 10);
       const newParticles = [];
 
-      // Flash effect when firework explodes
+      // 폭발 순간의 플래시 효과
       setShowFlash(true);
-      setTimeout(() => setShowFlash(false), 200);
+      const flashTimer = setTimeout(() => {
+        if (mounted) setShowFlash(false);
+      }, 200);
+      timers.push(flashTimer);
 
       for (let i = 0; i < count; i++) {
         const particleColor = Math.random() > 0.6 ? color : lightColor;
@@ -95,10 +113,21 @@ const Firework = ({
       }
 
       setParticles(newParticles);
-    }, delay * 1000);
 
-    return () => clearTimeout(timer);
-  }, [color, lightColor, delay, particleCount, size]);
+      // 파티클 애니메이션 종료 후 부모 상태에서 자신을 제거 (B1 누적 방지)
+      const finishTimer = setTimeout(() => {
+        if (mounted) onFinished?.();
+      }, FIREWORK_LIFETIME_MS);
+      timers.push(finishTimer);
+    }, delay * 1000);
+    timers.push(explodeTimer);
+
+    return () => {
+      // self-cleanup: 언마운트 시 타이머 전부 해제
+      mounted = false;
+      for (const timer of timers) clearTimeout(timer);
+    };
+  }, [color, lightColor, delay, particleCount, size, onFinished]);
 
   return (
     <div
@@ -144,14 +173,19 @@ const FireworkRocket = ({
   const _distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
   useEffect(() => {
+    let mounted = true;
     const timer = setTimeout(
       () => {
-        onExplode();
+        if (mounted) onExplode();
       },
       (delay + duration) * 1000,
     );
 
-    return () => clearTimeout(timer);
+    return () => {
+      // self-cleanup: 언마운트 시 폭발 콜백 타이머 해제
+      mounted = false;
+      clearTimeout(timer);
+    };
   }, [delay, duration, onExplode]);
 
   return (
@@ -177,57 +211,74 @@ export function FireworksAnimation({
   revealed,
   onComplete,
 }: FireworksAnimationProps) {
-  const { t } = useTranslation();
   const [fireworks, setFireworks] = useState<JSX.Element[]>([]);
   const [rockets, setRockets] = useState<JSX.Element[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const fireworkCountRef = useRef(0);
+  // onComplete 1회 발화 가드
+  const completedRef = useRef(false);
+
+  // 폭발 효과가 끝난 firework 를 상태에서 제거 (B1 누적 방지)
+  const handleFireworkFinished = useCallback((key: string) => {
+    setFireworks((prev) => prev.filter((fw) => fw.key !== key));
+  }, []);
 
   useEffect(() => {
-    if (!revealed || !containerRef.current) return;
+    const container = containerRef.current;
+    if (!revealed || !container) return;
 
-    const mainColor = gender === "boy" ? "#3B82F6" : "#EC4899";
-    const lightColor = gender === "boy" ? "#93C5FD" : "#F9A8D4";
+    // 언마운트 후 setState 방지 플래그
+    let mounted = true;
+    // 공유 색상 팔레트 — 하드코딩 hex 제거
+    const colors = getGenderColors(gender);
+    const mainColor = colors.dark; // boy #3B82F6 / girl #EC4899
+    const lightColor = colors.DEFAULT; // boy #93C5FD / girl #F9A8D4
 
     // 화면 크기 측정
-    const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
 
     // 로켓 발사와 폭발 효과 연결
     const launchFirework = (delay = 0) => {
       const id = fireworkCountRef.current++;
+      const rocketKey = `rocket-${id}`;
+      const fireworkKey = `fw-${id}`;
       const startX = 100 + Math.random() * (containerWidth - 200);
       const endX = startX + (Math.random() * 100 - 50);
       const endY = 100 + Math.random() * (containerHeight - 300);
-      const rocketDelay = delay;
 
       // 로켓 생성
       const newRocket = (
         <FireworkRocket
-          key={`rocket-${id}`}
-          color={gender === "boy" ? "#93C5FD" : "#F9A8D4"}
+          key={rocketKey}
+          color={lightColor}
           startX={startX}
           endX={endX}
           endY={endY}
-          delay={rocketDelay}
+          delay={delay}
           onExplode={() => {
+            if (!mounted) return;
             // 로켓이 도착하면 폭발 효과 생성
             const newFirework = (
               <Firework
-                key={`fw-${id}`}
+                key={fireworkKey}
                 color={mainColor}
                 lightColor={lightColor}
                 x={endX}
                 y={containerHeight - endY}
                 delay={0}
                 size={gender === "boy" ? 1.2 : 1.5}
+                onFinished={() => handleFireworkFinished(fireworkKey)}
               />
             );
 
-            setFireworks((prev) => [...prev, newFirework]);
+            // 동시 보유 상한 적용: 상한 초과 시 가장 오래된 항목부터 prune
+            setFireworks((prev) =>
+              [...prev, newFirework].slice(-MAX_ACTIVE_FIREWORKS),
+            );
 
             // 로켓 요소 제거
-            setRockets((prev) => prev.filter((r) => r.key !== `rocket-${id}`));
+            setRockets((prev) => prev.filter((r) => r.key !== rocketKey));
           }}
         />
       );
@@ -240,23 +291,33 @@ export function FireworksAnimation({
       launchFirework(i * 0.4);
     }
 
-    // 추가 로켓 발사
+    // 추가 로켓 발사 — 웨이브 상한(MAX_WAVES) 도달 시 정지 (B1 무한 발사 방지)
+    let waveCount = 0;
     const interval = setInterval(() => {
+      waveCount++;
+      if (waveCount > MAX_WAVES) {
+        clearInterval(interval);
+        return;
+      }
       for (let i = 0; i < 3; i++) {
         launchFirework(i * 0.3);
       }
-    }, 2000);
+    }, WAVE_INTERVAL_MS);
 
-    // Trigger callback after a delay
-    const timer = setTimeout(() => {
-      if (onComplete) onComplete();
+    // 시각 종료 시점에 onComplete 1회만 발화
+    const completeTimer = setTimeout(() => {
+      if (!mounted || completedRef.current) return;
+      completedRef.current = true;
+      onComplete?.();
     }, 5000);
 
     return () => {
+      // self-cleanup: 인터벌·타이머 전부 정리 (상한 추가 후에도 유지)
+      mounted = false;
       clearInterval(interval);
-      clearTimeout(timer);
+      clearTimeout(completeTimer);
     };
-  }, [revealed, gender, onComplete]);
+  }, [revealed, gender, onComplete, handleFireworkFinished]);
 
   return (
     <div ref={containerRef} className={styles.container}>
@@ -267,28 +328,12 @@ export function FireworksAnimation({
       {rockets}
       {fireworks}
 
-      {/* 텍스트 공지 */}
-      <div
-        className={styles.announcement}
-        style={{
-          opacity: revealed ? 1 : 0,
-          transform: revealed ? "scale(1)" : "scale(0.8)",
-          transition: "opacity 0.5s 1.5s, transform 0.5s 1.5s",
-        }}
-      >
-        <div
-          className={`${styles.announcementText} ${gender === "boy" ? styles.textBoy : styles.textGirl}`}
-          style={{
-            opacity: revealed ? 1 : 0,
-            transform: revealed ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.5s 2s, transform 0.5s 2s",
-          }}
-        >
-          {gender === "boy"
-            ? t("animations.boyAnnouncement")
-            : t("animations.girlAnnouncement")}
+      {/* 공지 텍스트 — 공용 AnnouncementText(진입 지연 2초로 기존 타이밍 보존) */}
+      {revealed && (
+        <div className={styles.announcement}>
+          <AnnouncementText gender={gender} delay={2} />
         </div>
-      </div>
+      )}
     </div>
   );
 }

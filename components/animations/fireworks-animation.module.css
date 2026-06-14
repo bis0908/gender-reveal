@@ -234,7 +234,7 @@
   }
 }
 
-/* 텍스트 공지 */
+/* 텍스트 공지 — 위치만 담당(텍스트 표현/색/모션은 공용 AnnouncementText 가 소유) */
 .announcement {
   position: absolute;
   inset: 0;
@@ -244,24 +244,46 @@
   z-index: 20;
 }
 
-.announcementText {
-  font-size: 7rem;
-  text-align: center;
-  font-weight: bold;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+/*
+ * 모션 감속 — prefers-reduced-motion: reduce 환경에서 파티클/로켓/배경 트윙클의
+ * 모션을 최소화한다. 트윙클은 정지(고정 opacity), 파티클은 이동/스케일 없이 짧게
+ * 페이드만, 로켓/궤적/스파클은 정적으로 표시한다. (framer 기반 공지 모션은
+ * AnnouncementText 가 useReducedMotion() 으로 자체 처리한다.)
+ */
+@media (prefers-reduced-motion: reduce) {
+  .starsBackground {
+    animation: none;
+    opacity: 0.4;
+  }
+
+  .rocket {
+    animation: none;
+  }
+
+  .rocket::after,
+  .rocket::before {
+    animation: none;
+    opacity: 0;
+  }
+
+  .flash {
+    animation: none;
+    opacity: 0;
+  }
+
+  .particle {
+    /* 폭발 확산 모션 제거: 제자리에서 짧게 페이드아웃만 수행 */
+    animation: particleFadeReduced 0.4s ease-out forwards;
+  }
 }
 
-.textBoy {
-  color: #93c5fd; /* baby-blue */
-}
-
-.textGirl {
-  color: #f9a8d4; /* baby-pink */
-}
-
-/* 모바일 반응형 */
-@media (min-width: 640px) {
-  .announcementText {
-    font-size: 9rem;
+@keyframes particleFadeReduced {
+  0% {
+    transform: translateZ(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(0) scale(1);
+    opacity: 0;
   }
 }
