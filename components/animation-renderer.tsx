@@ -1,10 +1,13 @@
 "use client";
 
+import { BalloonpopAnimation } from "@/components/animations/balloonpop-animation";
 import { BalloonsAnimation } from "@/components/animations/balloons-animation";
 import { ConfettiAnimation } from "@/components/animations/confetti-animation";
 import { FallingAnimation } from "@/components/animations/falling-animation";
 import { FireworksAnimation } from "@/components/animations/fireworks-animation";
+import { LootboxAnimation } from "@/components/animations/lootbox-animation";
 import { RevealAnimation } from "@/components/animations/reveal-animation";
+import { ScratchAnimation } from "@/components/animations/scratch-animation";
 import type { AnimationType, Gender } from "@/lib/types";
 
 interface AnimationRendererProps {
@@ -58,6 +61,30 @@ export function AnimationRenderer({
       case "reveal":
         return (
           <RevealAnimation
+            gender={gender}
+            revealed={isRevealed}
+            onComplete={onComplete}
+          />
+        );
+      case "lootbox":
+        return (
+          <LootboxAnimation
+            gender={gender}
+            revealed={isRevealed}
+            onComplete={onComplete}
+          />
+        );
+      case "balloonpop":
+        return (
+          <BalloonpopAnimation
+            gender={gender}
+            revealed={isRevealed}
+            onComplete={onComplete}
+          />
+        );
+      case "scratch":
+        return (
+          <ScratchAnimation
             gender={gender}
             revealed={isRevealed}
             onComplete={onComplete}

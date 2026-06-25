@@ -47,11 +47,18 @@ export type AnimationType =
   | "balloons"
   | "fireworks"
   | "falling"
-  | "reveal";
+  | "reveal"
+  | "lootbox"
+  | "balloonpop"
+  | "scratch";
 
 export interface Animation {
   id: AnimationType;
   name: string;
   description: string;
   thumbnail: string;
+  /** 선택 카드에 "NEW" 배지 표시 여부(신규 애니메이션 표식). 미지정 시 미표시. */
+  isNew?: boolean;
+  /** 사용자 입력(클릭/터치/드래그)으로 리빌이 진행되는 인터랙티브 애니메이션 여부. 미지정 시 자동 재생형. */
+  interactive?: boolean;
 }

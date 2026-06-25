@@ -12,7 +12,8 @@
     "submit": "作成する",
     "cancel": "キャンセル",
     "copy": "コピー",
-    "share": "共有"
+    "share": "共有",
+    "newBadge": "NEW"
   },
   "nav": {
     "home": "ホーム",
@@ -126,7 +127,21 @@
     "girlAnnouncement": "お姫様です！",
     "boyTitle": "王子様",
     "girlTitle": "お姫様",
-    "finalText": "です！"
+    "finalText": "です！",
+    "lootbox": "ボックスを開ける",
+    "balloonpop": "風船を割る",
+    "scratch": "スクラッチ",
+    "lootboxName": "ボックスを開ける",
+    "lootboxDesc": "タップして開くボックスから性別が公開されます",
+    "balloonpopName": "風船を割る",
+    "balloonpopDesc": "風船をタップして割ると性別が公開されます",
+    "scratchName": "スクラッチ",
+    "scratchDesc": "削って性別を確認してください",
+    "lootboxPrompt": "タップしてボックスを開ける",
+    "balloonpopPrompt": "タップして風船を割る",
+    "scratchPrompt": "ドラッグして削ってください",
+    "scratchTicketTitle": "ラッキーくじ",
+    "revealAll": "すべて公開"
   },
   "gender": {
     "boy": "息子",

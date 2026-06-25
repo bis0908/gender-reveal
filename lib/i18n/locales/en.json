@@ -12,7 +12,8 @@
     "submit": "Create",
     "cancel": "Cancel",
     "copy": "Copy",
-    "share": "Share"
+    "share": "Share",
+    "newBadge": "NEW"
   },
   "nav": {
     "home": "Home",
@@ -126,7 +127,21 @@
     "girlAnnouncement": "It's a Girl!",
     "boyTitle": "Boy",
     "girlTitle": "Girl",
-    "finalText": "!"
+    "finalText": "!",
+    "lootbox": "Open the Box",
+    "balloonpop": "Pop the Balloon",
+    "scratch": "Scratch Card",
+    "lootboxName": "Open the Box",
+    "lootboxDesc": "Tap to open the box and reveal the gender",
+    "balloonpopName": "Pop the Balloon",
+    "balloonpopDesc": "Tap to pop the balloon and reveal the gender",
+    "scratchName": "Scratch Card",
+    "scratchDesc": "Scratch to reveal the gender",
+    "lootboxPrompt": "Tap to open the box",
+    "balloonpopPrompt": "Tap to pop the balloon",
+    "scratchPrompt": "Drag to scratch",
+    "scratchTicketTitle": "Lucky Ticket",
+    "revealAll": "Reveal All"
   },
   "gender": {
     "boy": "boy",

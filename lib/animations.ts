@@ -2,7 +2,7 @@ import en from "./i18n/locales/en.json";
 import jp from "./i18n/locales/jp.json";
 import ko from "./i18n/locales/ko.json";
 import type { Language } from "./i18n/types";
-import type { Animation } from "./types";
+import type { Animation, AnimationType } from "./types";
 
 const translations = { ko, en, jp };
 
@@ -55,7 +55,40 @@ export function getAnimationOptions(language: Language = "ko"): Animation[] {
       description: t.animations.revealDesc,
       thumbnail: "/images/reveal-thumb.png",
     },
+    {
+      id: "lootbox",
+      name: t.animations.lootboxName,
+      description: t.animations.lootboxDesc,
+      thumbnail: "/images/lootbox-thumb.svg",
+      isNew: true,
+      interactive: true,
+    },
+    {
+      id: "balloonpop",
+      name: t.animations.balloonpopName,
+      description: t.animations.balloonpopDesc,
+      thumbnail: "/images/balloonpop-thumb.svg",
+      isNew: true,
+      interactive: true,
+    },
+    {
+      id: "scratch",
+      name: t.animations.scratchName,
+      description: t.animations.scratchDesc,
+      thumbnail: "/images/scratch-thumb.svg",
+      isNew: true,
+      interactive: true,
+    },
   ];
+}
+
+/**
+ * 인터랙티브 애니메이션 여부를 레지스트리(getAnimationOptions)의 interactive 플래그
+ * 단일 소스로 조회한다. 시간 기반 백업 타이머 분기 등에서 사용한다.
+ */
+export function isInteractiveAnimation(type: AnimationType): boolean {
+  const option = getAnimationOptions().find((anim) => anim.id === type);
+  return option?.interactive ?? false;
 }
 
 // 하위 호환성을 위한 기본 옵션 (한국어)

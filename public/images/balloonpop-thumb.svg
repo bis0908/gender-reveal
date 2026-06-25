@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="Pop the balloon">
+  <defs>
+    <linearGradient id="balloonpopBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCE7F3"/>
+      <stop offset="0.5" stop-color="#F5F3FF"/>
+      <stop offset="1" stop-color="#E0F2FE"/>
+    </linearGradient>
+    <radialGradient id="balloonpopBlue" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#BFDBFE"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </radialGradient>
+    <radialGradient id="balloonpopPink" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#FBCFE8"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </radialGradient>
+  </defs>
+  <rect width="320" height="180" fill="url(#balloonpopBg)"/>
+  <!-- 분홍 풍선 -->
+  <ellipse cx="118" cy="84" rx="34" ry="40" fill="url(#balloonpopPink)"/>
+  <path d="M114 124 l4 8 l4 -8 z" fill="#DB2777"/>
+  <path d="M118 132 q8 12 0 24" fill="none" stroke="#9CA3AF" stroke-width="2"/>
+  <ellipse cx="108" cy="70" rx="9" ry="6" fill="#FFFFFF" opacity="0.5"/>
+  <!-- 터지는 파랑 풍선(파편 버스트) -->
+  <g stroke="#3B82F6" stroke-width="5" stroke-linecap="round">
+    <line x1="206" y1="80" x2="190" y2="58"/>
+    <line x1="206" y1="80" x2="214" y2="52"/>
+    <line x1="206" y1="80" x2="232" y2="60"/>
+    <line x1="206" y1="80" x2="238" y2="84"/>
+    <line x1="206" y1="80" x2="230" y2="106"/>
+    <line x1="206" y1="80" x2="200" y2="110"/>
+    <line x1="206" y1="80" x2="178" y2="98"/>
+    <line x1="206" y1="80" x2="176" y2="76"/>
+  </g>
+  <circle cx="206" cy="80" r="12" fill="url(#balloonpopBlue)"/>
+  <!-- 탭 힌트 -->
+  <circle cx="206" cy="80" r="26" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.7"/>
+  <text x="160" y="166" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#DB2777">TAP</text>
+</svg>

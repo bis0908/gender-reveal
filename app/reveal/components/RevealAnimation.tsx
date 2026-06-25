@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { AnimationRenderer } from "@/components/animation-renderer";
 import { CountdownTimer } from "@/components/countdown-timer";
-import { REVEAL_TIMING } from "@/lib/animations";
+import { isInteractiveAnimation, REVEAL_TIMING } from "@/lib/animations";
 import type { AnimationType, Gender } from "@/lib/types";
 
 interface RevealAnimationProps {
@@ -36,8 +36,11 @@ export function RevealAnimation({
 
   // 개별 애니메이션의 onComplete 가 발화하지 않을 경우를 대비한 백업 타이머.
   // 정상 콜백·page 의 완료 가드와 함께 동작하므로 여기서는 1회만 호출하면 된다.
+  // 단, 인터랙티브 애니메이션(상자/풍선/긁기)은 사용자 주도 onComplete + 컴포넌트의
+  // "전체 공개" 버튼이 escape hatch 이므로 시간 기반 백업 타이머를 건너뛴다.
   useEffect(() => {
     if (!isRevealed) return;
+    if (isInteractiveAnimation(animationType)) return;
 
     const backupTimer = setTimeout(() => {
       if (backupFiredRef.current) return;
@@ -46,7 +49,7 @@ export function RevealAnimation({
     }, REVEAL_TIMING.ANIMATION_BACKUP_MS);
 
     return () => clearTimeout(backupTimer);
-  }, [isRevealed, onAnimationComplete]);
+  }, [isRevealed, animationType, onAnimationComplete]);
 
   return (
     <div className="h-[calc(100vh-64px)] relative">

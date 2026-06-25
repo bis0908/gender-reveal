@@ -17,7 +17,7 @@ export function AnimationSelection({
   value,
   onChange,
 }: AnimationSelectionProps) {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const animationOptions = getAnimationOptions(language);
 
   const handleChange = (newValue: string) => {
@@ -32,6 +32,11 @@ export function AnimationSelection({
     >
       {animationOptions.map((animation) => (
         <div className="relative" key={animation.id}>
+          {animation.isNew && (
+            <span className="absolute right-2 top-2 z-10 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground shadow-sm">
+              {t("common.newBadge")}
+            </span>
+          )}
           <Card
             className={`animation-card p-3 cursor-pointer ${value === animation.id ? "selected" : ""}`}
             onClick={() => handleChange(animation.id)}

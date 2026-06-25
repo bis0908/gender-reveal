@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180" role="img" aria-label="Scratch card">
+  <defs>
+    <linearGradient id="scratchBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E0F2FE"/>
+      <stop offset="0.5" stop-color="#F5F3FF"/>
+      <stop offset="1" stop-color="#FCE7F3"/>
+    </linearGradient>
+    <linearGradient id="scratchFoil" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D1D5DB"/>
+      <stop offset="0.5" stop-color="#9CA3AF"/>
+      <stop offset="1" stop-color="#6B7280"/>
+    </linearGradient>
+    <linearGradient id="scratchReveal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#BFDBFE"/>
+      <stop offset="1" stop-color="#FBCFE8"/>
+    </linearGradient>
+    <clipPath id="scratchCard"><rect x="74" y="44" width="172" height="92" rx="12"/></clipPath>
+  </defs>
+  <rect width="320" height="180" fill="url(#scratchBg)"/>
+  <!-- 카드 결과층(긁힌 자국 사이로 드러나는 성별 중립 색) -->
+  <rect x="74" y="44" width="172" height="92" rx="12" fill="url(#scratchReveal)"/>
+  <!-- 은박 커버 + 긁힌 자국(destination-out 흉내: 커버에 구멍 패스) -->
+  <g clip-path="url(#scratchCard)">
+    <path d="M74 44 H246 V136 H74 Z
+             M96 70 q24 -14 44 4 q22 18 50 2
+             q-26 22 -54 8 q-26 -12 -40 -14 Z"
+          fill="url(#scratchFoil)" fill-rule="evenodd"/>
+    <!-- 긁힘 흔적 스트로크 -->
+    <g stroke="#FFFFFF" stroke-width="2" opacity="0.5" fill="none" stroke-linecap="round">
+      <path d="M104 96 q20 -10 38 0"/>
+      <path d="M120 110 q22 -8 44 2"/>
+    </g>
+  </g>
+  <rect x="74" y="44" width="172" height="92" rx="12" fill="none" stroke="#9CA3AF" stroke-width="2"/>
+  <!-- 드래그/손가락 힌트 -->
+  <circle cx="178" cy="100" r="13" fill="#FFFFFF" opacity="0.92"/>
+  <circle cx="178" cy="100" r="13" fill="none" stroke="#6B7280" stroke-width="2"/>
+  <path d="M150 100 H206" stroke="#6B7280" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 8" opacity="0.8"/>
+  <text x="160" y="166" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#6B7280">DRAG</text>
+</svg>

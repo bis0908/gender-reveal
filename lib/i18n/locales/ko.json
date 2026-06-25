@@ -12,7 +12,8 @@
     "submit": "생성하기",
     "cancel": "취소",
     "copy": "복사",
-    "share": "공유"
+    "share": "공유",
+    "newBadge": "신규"
   },
   "nav": {
     "home": "홈",
@@ -126,7 +127,21 @@
     "girlAnnouncement": "공주님 입니다!",
     "boyTitle": "왕자님",
     "girlTitle": "공주님",
-    "finalText": "입니다!"
+    "finalText": "입니다!",
+    "lootbox": "상자 열기",
+    "balloonpop": "풍선 터트리기",
+    "scratch": "복권 긁기",
+    "lootboxName": "상자 열기",
+    "lootboxDesc": "탭하면 열리는 상자에서 성별이 공개돼요",
+    "balloonpopName": "풍선 터트리기",
+    "balloonpopDesc": "풍선을 탭해서 터트리면 성별이 공개돼요",
+    "scratchName": "복권 긁기",
+    "scratchDesc": "긁어서 성별을 확인하세요",
+    "lootboxPrompt": "탭하여 상자 열기",
+    "balloonpopPrompt": "탭하여 풍선 터트리기",
+    "scratchPrompt": "드래그하여 긁어보세요",
+    "scratchTicketTitle": "행운 복권",
+    "revealAll": "전체 공개"
   },
   "gender": {
     "boy": "아들",
@@ -171,7 +186,7 @@
     "nativeShare": "공유하기",
     "platforms": {
       "kakaotalk": "카카오톡",
-      "twitter": "트위터", 
+      "twitter": "트위터",
       "facebook": "페이스북",
       "whatsapp": "왓츠앱",
       "line": "라인",

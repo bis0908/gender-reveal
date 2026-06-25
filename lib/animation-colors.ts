@@ -30,6 +30,26 @@ export const BABY_PINK = {
   dark: "#EC4899",
 } as const;
 
+/**
+ * baby.neutral 토큰 대응 (성별 중립, 보라계).
+ *
+ * 성별을 드러내지 않아야 하는 표면(예: 열기 전 lootbox 닫힌 상자)에 사용한다. tailwind.config.ts
+ * 의 `baby.neutral`(light #C6B6DE / DEFAULT #9465C8 / dark #7A4DAF)과 동일 hex 다.
+ */
+export const BABY_NEUTRAL = {
+  light: "#C6B6DE",
+  DEFAULT: "#9465C8",
+  dark: "#7A4DAF",
+} as const;
+
+/**
+ * Light Bloom 입자계 공통 악센트 색(성별 무관).
+ * - GOLD: 금빛 컨페티/스파클(baby.yellow 계열이 아닌 따뜻한 금색 #FCD34D).
+ * - WHITE: 글로우 코어/스파클 하이라이트.
+ */
+export const BLOOM_GOLD = "#FCD34D";
+export const BLOOM_WHITE = "#FFFFFF";
+
 /** 성별별 3단계 색상 팔레트 타입 */
 export interface GenderColorPalette {
   light: string;
@@ -43,4 +63,12 @@ export interface GenderColorPalette {
  */
 export function getGenderColors(gender: Gender): GenderColorPalette {
   return gender === "boy" ? BABY_BLUE : BABY_PINK;
+}
+
+/**
+ * 성별 중립 팔레트({light, DEFAULT, dark})를 반환한다(baby.neutral).
+ * 성별을 노출하면 안 되는 표면에 getGenderColors 대신 사용한다.
+ */
+export function getNeutralColors(): GenderColorPalette {
+  return BABY_NEUTRAL;
 }

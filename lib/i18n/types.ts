@@ -18,6 +18,7 @@ export interface Translations {
     cancel: string;
     copy: string;
     share: string;
+    newBadge: string;
   };
 
   // 네비게이션
@@ -116,6 +117,9 @@ export interface Translations {
     fireworks: string;
     falling: string;
     reveal: string;
+    lootbox: string;
+    balloonpop: string;
+    scratch: string;
   };
 
   // 성별
