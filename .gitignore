@@ -253,6 +253,9 @@ _bmad/
 _bmad*
 .claude/
 
+# harness 중간 산출물 (에이전트 간 작업 파일)
+_workspace/
+
 ### Compressed ###
 *.7z
 *.deb
