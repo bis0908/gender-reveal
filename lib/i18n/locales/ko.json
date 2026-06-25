@@ -142,17 +142,6 @@
     "copyright": "HarborcatSoft. All rights reserved.",
     "whatsNew": "업데이트 소식"
   },
-  "changelog": {
-    "title": "업데이트 소식",
-    "description": "Gender Reveal 서비스의 최신 업데이트 및 개선사항을 확인하세요",
-    "backToHome": "홈으로 돌아가기",
-    "noUpdates": "아직 업데이트 소식이 없습니다.",
-    "categories": {
-      "feature": "새로운 기능",
-      "bugfix": "버그 수정",
-      "improvement": "개선사항"
-    }
-  },
   "countdown": {
     "seconds": "초",
     "ready": "공개!",

@@ -31,7 +31,7 @@ jest.mock("@/lib/i18n/context", () => {
 jest.mock("@/app/countdown/[token]/components/CountdownTimer", () => ({
   CountdownTimer: ({ onExpired }: { onExpired: () => void }) => (
     <div data-testid="countdown-timer">
-      <button onClick={onExpired} data-testid="expire-button">
+      <button type="button" onClick={onExpired} data-testid="expire-button">
         Expire
       </button>
     </div>
@@ -93,7 +93,7 @@ describe("카운트다운 페이지 리다이렉션 로직", () => {
     // Then: 토큰 검증 직후 리다이렉트
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith(
-        "/reveal?token=test-token",
+        "/reveal?token=test-token&source=countdown",
       );
     });
   });
@@ -154,7 +154,7 @@ describe("카운트다운 페이지 리다이렉션 로직", () => {
     // Then: 리다이렉트
     await waitFor(() => {
       expect(mockRouter.replace).toHaveBeenCalledWith(
-        "/reveal?token=test-token",
+        "/reveal?token=test-token&source=countdown",
       );
     });
   });
