@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Heart, Menu } from "lucide-react";
+import { Baby, ExternalLink, Menu } from "lucide-react";
 import { useState } from "react";
 import {
 	DropdownMenu,
@@ -17,6 +17,7 @@ import { useTranslation } from "@/lib/i18n/context";
 export function Header() {
 	const [isOpen, setIsOpen] = useState(false);
 	const { t } = useTranslation();
+	const babySaUrl = process.env.NEXT_PUBLIC_BABY_SA_URL?.trim() ?? "";
 
 	return (
 		<header className="w-full bg-white bg-opacity-90 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-100 px-4 sm:px-6">
@@ -53,6 +54,7 @@ export function Header() {
 					>
 						{t('nav.examples')}
 					</Link>
+					<RelatedServiceLink babySaUrl={babySaUrl} />
 					{/* <Link
 						href="/about"
 						className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
@@ -88,6 +90,18 @@ export function Header() {
 									{t('nav.examples')}
 								</Link>
 							</DropdownMenuItem>
+							{babySaUrl ? (
+								<DropdownMenuItem asChild>
+									<a
+										href={babySaUrl}
+										target="_blank"
+										rel="noreferrer"
+										className="w-full cursor-pointer"
+									>
+										아이쉼
+									</a>
+								</DropdownMenuItem>
+							) : null}
 							{/* <DropdownMenuItem asChild>
 								<Link href="/about" className="w-full cursor-pointer">
 									{t('nav.about')}
@@ -98,5 +112,38 @@ export function Header() {
 				</div>
 			</div>
 		</header>
+	);
+}
+
+function RelatedServiceLink({ babySaUrl }: { babySaUrl: string }) {
+	if (!babySaUrl) {
+		return null;
+	}
+
+	return (
+		<nav
+			aria-label="관련 서비스"
+			className="flex min-w-0 items-center gap-2 whitespace-nowrap"
+		>
+			<span className="shrink-0 text-xs font-semibold text-gray-500">
+				관련 서비스
+			</span>
+			<a
+				href={babySaUrl}
+				target="_blank"
+				rel="noreferrer"
+				className="group inline-flex h-9 max-w-full min-w-0 items-center gap-1.5 rounded-md border border-baby-blue/30 bg-white px-2.5 text-sm font-bold text-gray-800 shadow-sm transition hover:border-baby-blue hover:text-primary focus:outline-none focus:ring-2 focus:ring-baby-blue/30"
+			>
+				<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-baby-blue/15 text-baby-blue-dark transition group-hover:text-primary">
+					<Baby aria-hidden="true" size={13} />
+				</span>
+				<span className="truncate">아이쉼</span>
+				<ExternalLink
+					aria-hidden="true"
+					className="shrink-0 text-gray-400 transition group-hover:text-primary"
+					size={13}
+				/>
+			</a>
+		</nav>
 	);
 }
