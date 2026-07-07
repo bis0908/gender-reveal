@@ -98,7 +98,7 @@ export function Header() {
 										rel="noreferrer"
 										className="w-full cursor-pointer"
 									>
-										아이쉼
+										아이쉼터
 									</a>
 								</DropdownMenuItem>
 							) : null}
@@ -137,7 +137,7 @@ function RelatedServiceLink({ babySaUrl }: { babySaUrl: string }) {
 				<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-baby-blue/15 text-baby-blue-dark transition group-hover:text-primary">
 					<Baby aria-hidden="true" size={13} />
 				</span>
-				<span className="truncate">아이쉼</span>
+				<span className="truncate">아이쉼터</span>
 				<ExternalLink
 					aria-hidden="true"
 					className="shrink-0 text-gray-400 transition group-hover:text-primary"

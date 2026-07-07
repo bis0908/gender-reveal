@@ -36,10 +36,10 @@ describe("Header related service link", () => {
     render(<Header />);
 
     expect(screen.queryByLabelText("관련 서비스")).toBeNull();
-    expect(screen.queryByRole("link", { name: "아이쉼" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "아이쉼터" })).toBeNull();
   });
 
-  it("Given the Baby SA URL is configured When rendering the header Then it shows Aishim as a related service header link", () => {
+  it("Given the Baby SA URL is configured When rendering the header Then it shows 아이쉼터 as a related service header link", () => {
     process.env.NEXT_PUBLIC_BABY_SA_URL = "https://baby-sa.example.com/";
 
     render(<Header />);
@@ -49,7 +49,7 @@ describe("Header related service link", () => {
       "관련 서비스",
     );
     const babySaLink = within(relatedServiceNav).getByRole("link", {
-      name: "아이쉼",
+      name: "아이쉼터",
     });
 
     expect(relatedServiceNav.closest("header")).toBeTruthy();
