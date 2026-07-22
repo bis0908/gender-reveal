@@ -1,18 +1,22 @@
 "use client";
 
-import { useTranslation } from '@/lib/i18n/context';
-import { Language, SUPPORTED_LANGUAGES } from '@/lib/i18n/types';
-import { Button } from '@/components/ui/button';
+import { Check, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Globe, Check } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import { useTranslation } from "@/lib/i18n/context";
+import { type Language, SUPPORTED_LANGUAGES } from "@/lib/i18n/types";
 
 export function LanguageSelector() {
-  const { language: currentLanguage, changeLanguage, isLoading } = useTranslation();
+  const {
+    language: currentLanguage,
+    changeLanguage,
+    isLoading,
+  } = useTranslation();
 
   const handleLanguageChange = async (newLanguage: Language) => {
     if (newLanguage !== currentLanguage && !isLoading) {
@@ -22,21 +26,21 @@ export function LanguageSelector() {
 
   // 현재 언어의 정보 찾기
   const currentLanguageInfo = SUPPORTED_LANGUAGES.find(
-    (lang) => lang.code === currentLanguage
+    (lang) => lang.code === currentLanguage,
   );
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="flex items-center gap-2 h-8 px-2"
           disabled={isLoading}
         >
-          <Globe className="h-4 w-4" />
+          <Globe className="h-4 w-4" aria-hidden="true" />
           <span className="text-sm font-medium">
-            {currentLanguageInfo?.nativeName || 'Language'}
+            {currentLanguageInfo?.nativeName || "Language"}
           </span>
         </Button>
       </DropdownMenuTrigger>
@@ -46,10 +50,11 @@ export function LanguageSelector() {
             key={lang.code}
             onClick={() => handleLanguageChange(lang.code)}
             className="flex items-center justify-between cursor-pointer"
+            aria-current={currentLanguage === lang.code ? "true" : undefined}
           >
             <span>{lang.nativeName}</span>
             {currentLanguage === lang.code && (
-              <Check className="h-4 w-4 text-primary" />
+              <Check className="h-4 w-4 text-primary" aria-hidden="true" />
             )}
           </DropdownMenuItem>
         ))}

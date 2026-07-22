@@ -1,10 +1,20 @@
-import { NextResponse } from 'next/server';
-import * as jose from 'jose';
-import type { Gender, AnimationType, BabyInfo } from '@/lib/types';
-import { getEncodedSecret, JWT_EXPIRATION } from '@/lib/env.server';
-import { logger } from '@/lib/logger';
-import { createBadRequestError, createJWTError, createValidationError } from '@/lib/errors';
-import { parseRequestBody, validateRequiredFields } from '@/lib/api-utils';
+import { randomUUID } from "node:crypto";
+import * as jose from "jose";
+import { NextResponse } from "next/server";
+import { parseRequestBody, validateRequiredFields } from "@/lib/api-utils";
+import { getEncodedSecret, JWT_EXPIRATION } from "@/lib/env.server";
+import {
+  AppError,
+  createBadRequestError,
+  createErrorResponse,
+  createJWTError,
+  createRedisError,
+  createValidationError,
+} from "@/lib/errors";
+import { logger } from "@/lib/logger";
+import { recordGenerationMetric } from "@/lib/services/generation-metrics";
+import { enforceGenerationRateLimit } from "@/lib/services/generation-rate-limit";
+import type { AnimationType, BabyInfo, Gender } from "@/lib/types";
 
 // 클라이언트에서 받을 데이터 타입 정의 (단일 아기)
 interface SingleBabyRequest {
@@ -36,29 +46,42 @@ type RevealRequest = SingleBabyRequest | MultipleBabiesRequest;
 
 export async function POST(request: Request) {
   try {
+    await enforceGenerationRateLimit({
+      request,
+      endpoint: "/api/generate-token",
+    });
+  } catch (error) {
+    const safeError =
+      error instanceof AppError
+        ? error
+        : createRedisError("생성 요청 제한 서비스를 사용할 수 없습니다.");
+    return createErrorResponse(safeError);
+  }
+
+  try {
     // 요청 본문 파싱
     const data = await parseRequestBody<RevealRequest>(request);
 
     // 공통 필수 필드 검증
-    validateRequiredFields(data, ['motherName', 'fatherName', 'animationType']);
+    validateRequiredFields(data, ["motherName", "fatherName", "animationType"]);
 
     // 다태아 여부에 따라 추가 검증
     if (data.isMultiple) {
       if (!data.babiesInfo || data.babiesInfo.length < 2) {
-        logger.warn('다태아 정보 부족', {
-          endpoint: '/api/generate-token',
-          babiesCount: data.babiesInfo?.length || 0
+        logger.warn("다태아 정보 부족", {
+          endpoint: "/api/generate-token",
+          babiesCount: data.babiesInfo?.length || 0,
         });
         throw createValidationError(
-          '다태아 정보가 올바르지 않습니다. 최소 2명 이상의 아기 정보가 필요합니다.'
+          "다태아 정보가 올바르지 않습니다. 최소 2명 이상의 아기 정보가 필요합니다.",
         );
       }
     } else {
       if (!data.babyName || !data.gender) {
-        logger.warn('단태아 정보 누락', {
-          endpoint: '/api/generate-token'
+        logger.warn("단태아 정보 누락", {
+          endpoint: "/api/generate-token",
         });
-        throw createValidationError('아기 이름과 성별 정보가 필요합니다.');
+        throw createValidationError("아기 이름과 성별 정보가 필요합니다.");
       }
     }
 
@@ -73,48 +96,68 @@ export async function POST(request: Request) {
       ...(data.message && { message: data.message }),
       ...(data.isMultiple
         ? { babiesInfo: data.babiesInfo }
-        : { babyName: data.babyName, gender: data.gender }
-      )
+        : { babyName: data.babyName, gender: data.gender }),
     };
 
     try {
+      const eventId = randomUUID();
+
       // JWT 토큰 생성 (비밀키는 함수 실행 시점에 가져옴)
       const JWT_SECRET = getEncodedSecret();
-      const token = await new jose.SignJWT(tokenData as unknown as Record<string, unknown>)
-        .setProtectedHeader({ alg: 'HS256' })
+      const token = await new jose.SignJWT(
+        tokenData as unknown as Record<string, unknown>,
+      )
+        .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime(JWT_EXPIRATION)
         .sign(JWT_SECRET);
 
-      logger.info('토큰 생성 성공', {
-        endpoint: '/api/generate-token',
-        isMultiple: data.isMultiple
+      try {
+        await recordGenerationMetric({
+          eventId,
+          creationMode: "instant",
+          endpoint: "/api/generate-token",
+          request,
+          data,
+        });
+      } catch {
+        logger.serverMetric("metrics_record_failure", {
+          endpoint: "/api/generate-token",
+          creationMode: "instant",
+          eventId,
+          errorCode: "UNEXPECTED_METRICS_ERROR",
+        });
+      }
+
+      logger.info("토큰 생성 성공", {
+        endpoint: "/api/generate-token",
+        isMultiple: data.isMultiple,
       });
 
       return NextResponse.json({ token, success: true });
     } catch (jwtError) {
       logger.error(
-        'JWT 토큰 생성 실패',
-        { endpoint: '/api/generate-token' },
-        jwtError instanceof Error ? jwtError : new Error('Unknown JWT error')
+        "JWT 토큰 생성 실패",
+        { endpoint: "/api/generate-token" },
+        jwtError instanceof Error ? jwtError : new Error("Unknown JWT error"),
       );
-      throw createJWTError('토큰 생성에 실패했습니다.');
+      throw createJWTError("토큰 생성에 실패했습니다.");
     }
   } catch (error) {
     // 에러가 AppError인 경우 그대로 던지기
-    if (error instanceof Error && error.name === 'AppError') {
+    if (error instanceof Error && error.name === "AppError") {
       throw error;
     }
 
     logger.error(
-      '토큰 생성 중 예상치 못한 오류',
-      { endpoint: '/api/generate-token' },
-      error instanceof Error ? error : new Error('Unknown error')
+      "토큰 생성 중 예상치 못한 오류",
+      { endpoint: "/api/generate-token" },
+      error instanceof Error ? error : new Error("Unknown error"),
     );
 
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.', success: false },
-      { status: 500 }
+      { error: "서버 오류가 발생했습니다.", success: false },
+      { status: 500 },
     );
   }
 }

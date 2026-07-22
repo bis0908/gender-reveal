@@ -189,6 +189,111 @@ export interface Translations {
     goToCelebrate: string;
   };
 
+  // 관리자 페이지
+  admin: {
+    login: {
+      title: string;
+      description: string;
+      email: string;
+      password: string;
+      submit: string;
+      submitting: string;
+      invalidCredentials: string;
+      forbidden: string;
+      genericError: string;
+    };
+    metrics: {
+      title: string;
+      description: string;
+      signOut: string;
+      filter: {
+        from: string;
+        to: string;
+        apply: string;
+        applying: string;
+        invalid: string;
+        rangeTooLong: string;
+        recent30Days: string;
+        kst: string;
+        period: string;
+      };
+      total: {
+        title: string;
+        description: string;
+      };
+      charts: {
+        daily: {
+          title: string;
+          description: string;
+        };
+        creationMode: {
+          title: string;
+          description: string;
+        };
+        country: {
+          title: string;
+          description: string;
+        };
+        babyCount: {
+          title: string;
+          description: string;
+        };
+        animation: {
+          title: string;
+          description: string;
+        };
+        device: {
+          title: string;
+          description: string;
+        };
+        dueMonth: {
+          title: string;
+          description: string;
+        };
+      };
+      state: {
+        loading: string;
+        empty: string;
+        error: string;
+        retry: string;
+        unauthorized: string;
+        forbidden: string;
+      };
+      common: {
+        count: string;
+        percent: string;
+        noData: string;
+      };
+      labels: {
+        creationMode: {
+          instant: string;
+          dday: string;
+        };
+        device: {
+          ios: string;
+          android: string;
+          other: string;
+          unknown: string;
+        };
+        animation: {
+          confetti: string;
+          balloons: string;
+          fireworks: string;
+          falling: string;
+          reveal: string;
+          lootbox: string;
+          balloonpop: string;
+          scratch: string;
+        };
+        babyCount: string;
+        country: {
+          other: string;
+          unknown: string;
+        };
+      };
+    };
+  };
+
   // 공개 페이지(부분 타입)
   reveal?: {
     error?: {

@@ -3,6 +3,7 @@
  * POST /api/dday/create
  */
 
+import { randomUUID } from "node:crypto";
 import * as jose from "jose";
 import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
@@ -11,7 +12,6 @@ import { getEncodedSecret } from "@/lib/env.server";
 import {
   createBadRequestError,
   createErrorResponse,
-  createRateLimitError,
   createRedisError,
   createValidationError,
   normalizeError,
@@ -22,16 +22,13 @@ import {
   type DDayCreateInput,
   ddayCreateSchema,
 } from "@/lib/schemas/dday-schema";
-
-// Rate limiting 설정: IP당 1분에 5회 생성 제한
-const RATE_LIMIT_WINDOW = 60;
-const RATE_LIMIT_MAX_REQUESTS = 5;
+import { recordGenerationMetric } from "@/lib/services/generation-metrics";
+import { enforceGenerationRateLimit } from "@/lib/services/generation-rate-limit";
 
 // Redis 키 접두어
 const REDIS_KEYS = {
   vote: (revealId: string) => `vote:${revealId}`,
   revealData: (revealId: string) => `reveal:${revealId}:data`,
-  rateLimit: (ip: string) => `ratelimit:create:${ip}`,
 };
 
 /**
@@ -55,25 +52,6 @@ function calculateRedisTTL(scheduledAt: string): number {
   const ttlEnd = new Date(scheduledDate);
   ttlEnd.setDate(ttlEnd.getDate() + 30);
   return Math.floor((ttlEnd.getTime() - Date.now()) / 1000);
-}
-
-/**
- * Rate limiting 확인
- */
-async function checkRateLimit(ip: string): Promise<boolean> {
-  if (!ip) {
-    return false;
-  }
-
-  const redis = await getRedisClient();
-  const key = REDIS_KEYS.rateLimit(ip);
-
-  const count = await redis.incr(key);
-  if (count === 1) {
-    await redis.expire(key, RATE_LIMIT_WINDOW);
-  }
-
-  return count <= RATE_LIMIT_MAX_REQUESTS;
 }
 
 /**
@@ -104,16 +82,11 @@ async function generateUniqueRevealId(
 
 export async function POST(request: Request) {
   try {
-    // 1. IP 추출 및 Rate Limiting
-    const forwardedFor = request.headers.get("x-forwarded-for");
-    const ip = forwardedFor?.split(",")[0]?.trim() || "unknown";
-
-    const isAllowed = await checkRateLimit(ip);
-    if (!isAllowed) {
-      throw createRateLimitError(
-        "D-Day 생성 요청이 너무 많습니다. 1분 후 다시 시도해주세요.",
-      );
-    }
+    // 1. 공통 생성 Rate Limiting
+    await enforceGenerationRateLimit({
+      request,
+      endpoint: "/api/dday/create",
+    });
 
     // 2. 요청 본문 파싱
     const rawData = await parseRequestBody<DDayCreateInput>(request);
@@ -190,6 +163,24 @@ export async function POST(request: Request) {
       .setIssuedAt()
       .setExpirationTime(TOKEN_EXPIRATION)
       .sign(JWT_SECRET);
+
+    const eventId = randomUUID();
+    try {
+      await recordGenerationMetric({
+        eventId,
+        creationMode: "dday",
+        endpoint: "/api/dday/create",
+        request,
+        data,
+      });
+    } catch {
+      logger.serverMetric("metrics_record_failure", {
+        endpoint: "/api/dday/create",
+        creationMode: "dday",
+        eventId,
+        errorCode: "UNEXPECTED_METRICS_ERROR",
+      });
+    }
 
     logger.info("D-Day 예약 생성 성공", {
       revealId,

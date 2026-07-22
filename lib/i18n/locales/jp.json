@@ -295,6 +295,109 @@
       "5": "非常に満足！🎉"
     }
   },
+  "admin": {
+    "login": {
+      "title": "管理者ログイン",
+      "description": "生成メトリクスダッシュボードにアクセスするには、管理者アカウントでログインしてください。",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "submit": "ログイン",
+      "submitting": "ログイン中...",
+      "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
+      "forbidden": "管理者権限がありません。",
+      "genericError": "ログイン中にエラーが発生しました。しばらくしてからもう一度お試しください。"
+    },
+    "metrics": {
+      "title": "生成メトリクス",
+      "description": "Gender Revealリンクの生成状況をKST基準で確認できます。",
+      "signOut": "ログアウト",
+      "filter": {
+        "from": "開始日",
+        "to": "終了日",
+        "apply": "適用",
+        "applying": "適用中...",
+        "invalid": "正しい期間を選択してください。",
+        "rangeTooLong": "検索期間は最大24か月です。",
+        "recent30Days": "直近30日",
+        "kst": "KST",
+        "period": "検索期間"
+      },
+      "total": {
+        "title": "総生成件数",
+        "description": "選択した期間に生成されたリンク数"
+      },
+      "charts": {
+        "daily": {
+          "title": "日別生成数",
+          "description": "日付別のリンク生成件数"
+        },
+        "creationMode": {
+          "title": "生成方式",
+          "description": "即時公開とD-Day予約の割合"
+        },
+        "country": {
+          "title": "国",
+          "description": "リンクが生成された国の分布"
+        },
+        "babyCount": {
+          "title": "赤ちゃんの人数",
+          "description": "リンクごとの赤ちゃんの人数分布"
+        },
+        "animation": {
+          "title": "アニメーション",
+          "description": "選択された公開アニメーションの分布"
+        },
+        "device": {
+          "title": "デバイス",
+          "description": "リンク作成に使用されたデバイスの分布"
+        },
+        "dueMonth": {
+          "title": "出産予定月",
+          "description": "出産予定月の分布"
+        }
+      },
+      "state": {
+        "loading": "メトリクスを読み込んでいます...",
+        "empty": "選択した期間のメトリクスデータはありません。",
+        "error": "メトリクスを読み込めませんでした。",
+        "retry": "再試行",
+        "unauthorized": "このダッシュボードを表示するにはログインが必要です。",
+        "forbidden": "管理者権限が必要です。"
+      },
+      "common": {
+        "count": "件数",
+        "percent": "割合",
+        "noData": "データなし"
+      },
+      "labels": {
+        "creationMode": {
+          "instant": "即時公開",
+          "dday": "D-Day予約"
+        },
+        "device": {
+          "ios": "iOS",
+          "android": "Android",
+          "other": "その他",
+          "unknown": "不明"
+        },
+        "animation": {
+          "confetti": "紙吹雪",
+          "balloons": "風船",
+          "fireworks": "花火",
+          "falling": "降下効果",
+          "reveal": "公開効果",
+          "lootbox": "ボックスを開ける",
+          "balloonpop": "風船を割る",
+          "scratch": "スクラッチ"
+        },
+        "babyCount": "赤ちゃんの人数: {{count}}",
+        "country": {
+          "other": "その他の国",
+          "unknown": "不明"
+        }
+      }
+    }
+  },
   "changelog": {
     "title": "更新情報",
     "description": "Gender Reveal サービスの最新アップデートと改善点を確認してください",

@@ -25,6 +25,10 @@ jest.mock("@/lib/redis", () => ({
   getRedisClient: jest.fn(),
 }));
 
+jest.mock("@/lib/services/generation-metrics", () => ({
+  recordGenerationMetric: jest.fn().mockResolvedValue(true),
+}));
+
 jest.mock("@/lib/logger", () => ({
   logger: {
     debug: jest.fn(),
@@ -35,6 +39,7 @@ jest.mock("@/lib/logger", () => ({
 }));
 
 const mockRedisClient = {
+  eval: jest.fn(),
   incr: jest.fn(),
   expire: jest.fn(),
   exists: jest.fn(),
@@ -63,6 +68,7 @@ describe("D-Day 생성 API 보안 정책", () => {
     jest.clearAllMocks();
 
     (getRedisClient as jest.Mock).mockResolvedValue(mockRedisClient);
+    mockRedisClient.eval.mockResolvedValue(1);
     mockRedisClient.incr.mockResolvedValue(1);
     mockRedisClient.expire.mockResolvedValue(true);
     mockRedisClient.exists.mockResolvedValue(0);

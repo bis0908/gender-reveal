@@ -3,7 +3,7 @@
  * 환경에 따라 적절한 로그 레벨과 형식을 제공
  */
 
-import { IS_PRODUCTION, IS_DEVELOPMENT } from "./config";
+import { IS_DEVELOPMENT, IS_PRODUCTION } from "./config";
 
 // 로그 레벨 정의
 export enum LogLevel {
@@ -135,6 +135,14 @@ class Logger {
     if (this.shouldLog(LogLevel.DEBUG)) {
       console.debug(formatLog(LogLevel.DEBUG, message, context));
     }
+  }
+
+  /**
+   * 운영 환경에서도 수집해야 하는 서버 메트릭 로그를 기록한다.
+   * 일반 info 로그의 운영 출력 정책은 변경하지 않는다.
+   */
+  serverMetric(message: string, context?: LogContext): void {
+    console.info(formatLog(LogLevel.INFO, message, context));
   }
 
   /**

@@ -19,6 +19,30 @@ function getRedisUrl(): string {
   if (!url) {
     throw new Error("REDIS_URL 환경변수가 설정되지 않았습니다.");
   }
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    throw new Error("REDIS_URL 형식이 올바르지 않습니다.");
+  }
+
+  const hostname = parsedUrl.hostname.toLowerCase();
+  const isLoopback =
+    hostname === "localhost" ||
+    hostname === "[::1]" ||
+    /^127(?:\.\d{1,3}){3}$/.test(hostname);
+
+  if (parsedUrl.protocol !== "rediss:" && !isLoopback) {
+    throw new Error(
+      "원격 Redis 연결에는 TLS가 적용된 rediss:// URL이 필요합니다.",
+    );
+  }
+
+  if (parsedUrl.protocol !== "redis:" && parsedUrl.protocol !== "rediss:") {
+    throw new Error("REDIS_URL은 redis:// 또는 rediss:// 형식이어야 합니다.");
+  }
+
   return url;
 }
 

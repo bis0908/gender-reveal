@@ -295,6 +295,109 @@
       "5": "Very Satisfied! 🎉"
     }
   },
+  "admin": {
+    "login": {
+      "title": "Admin Sign In",
+      "description": "Sign in with your administrator account to access the generation metrics dashboard.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "invalidCredentials": "The email or password is incorrect.",
+      "forbidden": "You do not have administrator access.",
+      "genericError": "Something went wrong while signing in. Please try again."
+    },
+    "metrics": {
+      "title": "Generation Metrics",
+      "description": "View Gender Reveal link generation activity in KST.",
+      "signOut": "Sign out",
+      "filter": {
+        "from": "Start date",
+        "to": "End date",
+        "apply": "Apply",
+        "applying": "Applying...",
+        "invalid": "Select a valid date range.",
+        "rangeTooLong": "The date range cannot exceed 24 months.",
+        "recent30Days": "Last 30 days",
+        "kst": "KST",
+        "period": "Date range"
+      },
+      "total": {
+        "title": "Total Links Created",
+        "description": "Links created during the selected period"
+      },
+      "charts": {
+        "daily": {
+          "title": "Daily Creations",
+          "description": "Links created by date"
+        },
+        "creationMode": {
+          "title": "Creation Mode",
+          "description": "Share of instant and D-Day scheduled links"
+        },
+        "country": {
+          "title": "Country",
+          "description": "Distribution of countries where links were created"
+        },
+        "babyCount": {
+          "title": "Baby Count",
+          "description": "Distribution by number of babies per link"
+        },
+        "animation": {
+          "title": "Animation",
+          "description": "Distribution of selected reveal animations"
+        },
+        "device": {
+          "title": "Device",
+          "description": "Distribution of devices used to create links"
+        },
+        "dueMonth": {
+          "title": "Due Month",
+          "description": "Distribution of expected due months"
+        }
+      },
+      "state": {
+        "loading": "Loading metrics...",
+        "empty": "No metrics are available for the selected period.",
+        "error": "Metrics could not be loaded.",
+        "retry": "Try again",
+        "unauthorized": "Sign in to view this dashboard.",
+        "forbidden": "Administrator access is required."
+      },
+      "common": {
+        "count": "Count",
+        "percent": "Percentage",
+        "noData": "No data"
+      },
+      "labels": {
+        "creationMode": {
+          "instant": "Instant reveal",
+          "dday": "D-Day schedule"
+        },
+        "device": {
+          "ios": "iOS",
+          "android": "Android",
+          "other": "Other",
+          "unknown": "Unknown"
+        },
+        "animation": {
+          "confetti": "Confetti",
+          "balloons": "Balloons",
+          "fireworks": "Fireworks",
+          "falling": "Falling Effect",
+          "reveal": "Reveal Effect",
+          "lootbox": "Open the Box",
+          "balloonpop": "Pop the Balloon",
+          "scratch": "Scratch Card"
+        },
+        "babyCount": "Baby count: {{count}}",
+        "country": {
+          "other": "Other countries",
+          "unknown": "Unknown"
+        }
+      }
+    }
+  },
   "changelog": {
     "title": "What's New",
     "description": "Check out the latest updates and improvements to Gender Reveal service",
