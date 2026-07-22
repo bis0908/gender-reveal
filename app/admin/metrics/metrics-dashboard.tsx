@@ -3,11 +3,13 @@
 import {
   AlertCircle,
   CalendarDays,
+  Loader2,
   LockKeyhole,
+  LogOut,
   RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { LanguageSelector } from "@/components/language-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import {
   type MetricsSummary,
   metricsSummarySchema,
 } from "@/lib/schemas/metrics-summary-schema";
+import { logoutAdminAction } from "./actions";
 import { MetricsChartCard, type MetricsChartDatum } from "./metrics-chart-card";
 import { MetricsDashboardSkeleton } from "./metrics-dashboard-skeleton";
 import {
@@ -51,6 +54,7 @@ function isEmptySummary(summary: MetricsSummary): boolean {
 
 export function MetricsDashboard({ initialSummary }: MetricsDashboardProps) {
   const { t, language } = useTranslation();
+  const [isPending, startTransition] = useTransition();
   const [summary, setSummary] = useState(initialSummary);
   const [fromDate, setFromDate] = useState(() =>
     getKstDateInputValue(initialSummary.period.from),
@@ -138,6 +142,12 @@ export function MetricsDashboard({ initialSummary }: MetricsDashboardProps) {
     } catch {
       setStatus("error");
     }
+  };
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logoutAdminAction();
+    });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -295,7 +305,26 @@ export function MetricsDashboard({ initialSummary }: MetricsDashboardProps) {
               {t("admin.metrics.description")}
             </p>
           </div>
-          <LanguageSelector />
+          <div className="flex items-center gap-2">
+            <LanguageSelector />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={isPending}
+              onClick={handleLogout}
+              className="flex items-center gap-2 h-8 px-2"
+            >
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+              )}
+              <span className="text-sm font-medium">
+                {t("admin.metrics.signOut")}
+              </span>
+            </Button>
+          </div>
         </header>
 
         <MetricsDateFilter
